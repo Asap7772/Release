@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/setScheme"
+        android:icon="@drawable/zoom"
+        android:title="Scanning Region" />
+    <item android:id="@+id/infoPopup"
+        android:icon="@drawable/info"
+        android:title="Info" />
+</menu>

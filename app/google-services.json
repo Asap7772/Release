@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "949111788733",
+    "firebase_url": "https://supervision-search-6ffa0.firebaseio.com",
+    "project_id": "supervision-search-6ffa0",
+    "storage_bucket": "supervision-search-6ffa0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949111788733:android:d2b27fa8d38f2007",
+        "android_client_info": {
+          "package_name": "edu.harvard.meei.supervisionsearch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "949111788733-gv9pluq24m35ov7ghsqh36qqg8f1eq9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVvGFPfUwVdSuJWF-Mo-FXjYsKjStWGcY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

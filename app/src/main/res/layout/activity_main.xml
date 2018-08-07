@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/topLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
+
+    <android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/cameraPreview">
+
+        <edu.harvard.meei.supervisionsearch.CameraSourcePreview
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <edu.harvard.meei.supervisionsearch.GraphicOverlay
+                android:id="@+id/overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </edu.harvard.meei.supervisionsearch.CameraSourcePreview>
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/blackLinear"
+        android:background="@color/black"
+        android:orientation="horizontal">
+        <edu.harvard.meei.supervisionsearch.RotatableZoomableImageView
+            android:id="@+id/ivMainImageMainActivity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|top"
+        android:orientation="vertical">
+        <View
+            android:layout_height="25dp"
+            android:layout_width="@dimen/size"/>
+
+        <ImageButton
+            android:layout_height="@dimen/size"
+            android:layout_width="@dimen/size"
+            android:layout_marginTop="25dp"
+            android:layout_margin="10dp"
+            android:onClick="settings"
+            android:src="@raw/settings"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:id="@+id/settings"/>
+
+        <ImageButton
+            android:layout_height="@dimen/size"
+            android:layout_width="@dimen/size"
+            android:layout_marginTop="25dp"
+            android:layout_margin="10dp"
+            android:onClick="toggleFlashlight"
+            android:src="@raw/flashlight"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:id="@+id/flashlight"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="end|top">
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="350dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="-130dp"
+            android:layout_marginTop="250dp"
+            style="@style/Base.Widget.AppCompat.SeekBar"
+            android:layerType="hardware"
+            android:max="100"
+            android:progressDrawable="@drawable/seekstyle"
+            android:thumb="@drawable/seekbar"
+            android:progress="0"
+            android:rotation="270" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|top"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:layout_width="@dimen/size"
+            android:layout_height="@dimen/size"
+            android:layout_margin="10dp"
+            android:src="@drawable/download"
+            android:id="@+id/download"
+            android:onClick="download" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:background="@color/white">
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/size"
+                android:layout_margin="10dp"
+                android:onClick="speech"
+                android:src="@raw/microphone"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <EditText
+                android:id="@+id/search"
+                android:layout_width="0dp"
+                android:layout_weight="6"
+                android:layout_height="60dp"
+                android:padding="5dp"
+                android:layout_margin="10dp"
+                android:gravity="center_vertical|left"
+                android:imeOptions="actionDone"
+                android:textSize="30sp"
+                android:singleLine="true"
+                android:inputType="textAutoCorrect"
+                android:text="search"
+                android:textColor="@color/black"
+                android:textCursorDrawable="@drawable/cursor"
+                android:background="@color/white"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="left">
+
+        <ImageButton
+            android:id="@+id/zoomButton"
+            android:layout_width="@dimen/size"
+            android:layout_height="@dimen/size"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginLeft="@dimen/sideMargin"
+            android:onClick="zoom"
+            android:src="@raw/zoom"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"/>
+
+        <ImageButton
+            android:id="@+id/previous"
+            android:layout_width="@dimen/size"
+            android:layout_height="@dimen/size"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginLeft="@dimen/sideMargin"
+            android:onClick="previous"
+            android:src="@raw/left_arrow"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="right">
+        <ImageButton
+            android:id="@+id/next"
+            android:layout_width="@dimen/size"
+            android:layout_height="@dimen/size"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginRight="@dimen/sideMargin"
+            android:onClick="next"
+            android:src="@raw/right_arrow"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center_horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/marginLayout"
+            android:layout_marginLeft="@dimen/sideMargin"
+            android:orientation="horizontal"
+            android:layout_marginBottom="85dp">
+
+            <ImageView
+                android:layout_width="@dimen/size"
+                android:layout_height="@dimen/size"
+                android:id="@+id/scan"
+                android:src="@raw/find"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/size"
+                android:layout_height="@dimen/size"
+                android:layout_marginLeft="60dp"
+                android:id="@+id/capture"
+                android:src="@raw/camera"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:onClick="capture"
+                android:background="?android:attr/selectableItemBackground"
+                />
+
+            <ImageButton
+                android:id="@+id/restart"
+                android:layout_width="@dimen/size"
+                android:layout_height="@dimen/size"
+                android:layout_margin="10dp"
+                android:onClick="restart"
+                android:src="@raw/restart"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">SuperVision Search</string>
+    <string name="hint">Search</string>
+    <string name="Button_Ocr_Text">Mode</string>
+    <string name="chooseButton">Options</string>
+    <string name="app_label">SuperVision Search</string>
+    <string-array name="spinnerArray">
+        <item>NONE</item>
+        <item>CENTER</item>
+        <item>VERTICAL</item>
+        <item>HORIZONTAL</item>
+    </string-array>
+</resources>
