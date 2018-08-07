@@ -18,7 +18,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
@@ -48,6 +47,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -67,7 +67,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
+import de.cketti.mailto.EmailIntentBuilder;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener, PopupMenu.OnMenuItemClickListener {
     // =============================================================================================
@@ -1424,10 +1425,27 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void setInfoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Info about the application");
-        builder.setMessage("To be determined");
-        builder.create().show();
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        WebView wv = new WebView(this);
+        wv.loadUrl("file:///android_res/raw/infopage.html");
+
+        alert.setView(wv);
+        alert.setNegativeButton("Contact Us", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                EmailIntentBuilder.from(MainActivity.this).to("luoreslab@gmail.com")
+                        .cc("singh.anikait@gmail.com") .subject("Issue from app")
+                        .body("The issue I am facing is").start();
+            }
+        });
+        alert.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        alert.show();
     }
 
     /**

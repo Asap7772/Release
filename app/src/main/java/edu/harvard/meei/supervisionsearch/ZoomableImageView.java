@@ -21,6 +21,7 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+
 import com.example.anikaitsingh.realtimecamerasource.helper.MyRect;
 
 @SuppressLint("AppCompatCustomView")
