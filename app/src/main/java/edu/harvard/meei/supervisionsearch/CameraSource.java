@@ -743,10 +743,12 @@ public class CameraSource {
     }
 
     public void torch(boolean on){
-        Camera.Parameters param = camera.getParameters();
-        if(on) param.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        else param.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-        camera.setParameters(param);
+        if(camera != null) {
+            Camera.Parameters param = camera.getParameters();
+            if (on) param.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            else param.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            camera.setParameters(param);
+        }
     }
 
     public double zoom(double percent){
