@@ -21,6 +21,7 @@ import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
+import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     // View Variables
     // =============================================================================================
     private RotatableZoomableImageView ziv;
-    private ImageView zoom;
+    private ImageButton zoom;
     private ImageView next, previous;
     private ImageView settings, info;
     private GraphicOverlay graphicOverlay;
@@ -147,6 +148,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private int oldWidth;
     private SharedPreferences mPreferences;
     private ImageButton flashlight;
+    private Thread capture;
+    private boolean zoomIn = true;
+    private int cameraPictureRotation = 0;
 
     private void updateZoom() {
         cameraSource.zoom(progress / 100.0);
@@ -193,17 +197,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     if (success && secondTime) {
                         update(query);
 
-                        if(arr.size() != 1) {
+                        if (arr.size() != 1) {
                             saySomething(query + " found in " + arr.size() + " locations");
-                        }else{
+                        } else {
                             saySomething(query + " found in 1 location");
                         }
-                    }else if(cameraCapture){
+                    } else if (cameraCapture) {
                         update(query);
 
-                        if(arr.size() != 1) {
+                        if (arr.size() != 1) {
                             saySomething(query + " found in " + arr.size() + " locations");
-                        }else{
+                        } else {
                             saySomething(query + " found in 1 location");
                         }
                     }
@@ -232,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if(!allPermissionsGranted()){
+        if (!allPermissionsGranted()) {
             getRuntimePermissions();
         }
 
@@ -252,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         preview = (CameraSourcePreview) findViewById(R.id.preview);
         graphicOverlay = (GraphicOverlay) findViewById(R.id.overlay);
         ziv = (RotatableZoomableImageView) findViewById(R.id.ivMainImageMainActivity);
-        zoom = (ImageView) findViewById(R.id.zoomButton);
+        zoom = (ImageButton) findViewById(R.id.zoomButton);
         next = (ImageView) findViewById(R.id.next);
         previous = (ImageView) findViewById(R.id.previous);
         settings = (ImageView) findViewById(R.id.settings);
@@ -263,6 +267,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         restart = (ImageButton) findViewById(R.id.restart);
         flashlight = (ImageButton) findViewById(R.id.flashlight);
 
+        setImage(zoom, R.raw.zoomin);
+
         scan.setOnTouchListener(new View.OnTouchListener() {
             /**
              * When touch event occurs, handles lift and a simple touch & hold
@@ -272,15 +278,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
              */
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     //sets boolean touch to true
                     cameraSource.touch = true;
-                }
-                else if(event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
+                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
                     //sets boolean lift to true if the touch variable was true
-                    if(cameraSource.touch){
+                    if (cameraSource.touch) {
                         cameraSource.lift = true;
-                    }else cameraSource.lift = false;
+                    } else cameraSource.lift = false;
                     cameraSource.touch = false;
                 }
                 return true;
@@ -313,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         //reset variable values
         wordFound = false;
-        if(processor != null) {
+        if (processor != null) {
             processor.setFoundOnce(false);
         }
 
@@ -349,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             updateZoom();
             compProg = false;
             scheme = ClassificationScheme.valueOf(mPreferences.getString("region", ClassificationScheme.NONE.name()));
-        }else {
+        } else {
             mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         }
     }
@@ -369,8 +374,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         t = new Thread() {
             @Override
             public void run() {
-                String found = getText();
 
+                String found = getText();
                 while (!(processor.isFoundOnce() && cameraSource.lift)) {
                     if (cameraSource.lift) {
                         //in case of accidental lift
@@ -479,8 +484,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
                 }
 
-                final boolean foundRect = arr!= null;
-                if(arr!= null) {
+                final boolean foundRect = arr != null;
+                if (arr != null) {
                     rot = angle != 0;
                     bmpaltr = highlightWordFound(bmp, arr);
                     final float angleSet = angle;
@@ -493,13 +498,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         });
                     }
 
-                    if(arr.size() != 1) {
+                    if (arr.size() != 1) {
                         saySomething(found + " found in " + arr.size() + " locations");
-                    }else{
+                    } else {
                         saySomething(found + " found in 1 location");
                     }
-                }else{
-                    if(!prevFrame) bmpaltr = bmp;
+                } else {
+                    if (!prevFrame) bmpaltr = bmp;
                 }
 
                 runOnUiThread(new Runnable() {
@@ -524,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 //resets values of button visibility
                 showZoom();
 
-                if(!foundRect && !prevFrame){
+                if (!foundRect && !prevFrame) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -566,18 +571,18 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         return (float) Math.toDegrees(Math.atan(t));
     }
 
-    private float medianAngle(ArrayList<Float> slope){
+    private float medianAngle(ArrayList<Float> slope) {
         float[] arr = new float[slope.size()];
-        for(int i = 0; i < slope.size(); i++){
+        for (int i = 0; i < slope.size(); i++) {
             arr[i] = slope.get(i);
         }
 
         Arrays.sort(arr);
 
-        if(arr.length%2 == 0){
-            return (arr[arr.length/2] + arr[arr.length/2 + 1])/2;
-        }else{
-            return arr[arr.length/2];
+        if (arr.length % 2 == 0) {
+            return (arr[arr.length / 2] + arr[arr.length / 2 + 1]) / 2;
+        } else {
+            return arr[arr.length / 2];
         }
     }
 
@@ -592,7 +597,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      * @param query
      */
     private void update(String query) {
-        //check if multiple word search is ok
+        zoomIn = true;
+        setImage(zoom, R.raw.zoomin);
         if (!multi) {
             //called update method
             frameProcessor.updateRecog(query);
@@ -692,6 +698,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         frameProcessor.runTextRecognition(bmp, found);
         while (!frameProcessor.isFinished()) {
             Log.w(TAG, "Processing new Frame");
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         return frameProcessor.getRects();
     }
@@ -733,6 +744,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         String filepath = pictureFile.getAbsolutePath();
                         bmp = BitmapFactory.decodeFile(filepath);
                         pictureDone = true;
+                        ExifInterface exif = new ExifInterface(pictureFile.getAbsolutePath());
+                        if (exif != null) {
+                            Log.d("EXIF value", exif.getAttribute(ExifInterface.TAG_ORIENTATION));
+                            if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("6")) {
+                                cameraPictureRotation = 90;
+                            } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("8")) {
+                                cameraPictureRotation = 270;
+                            } else if (exif.getAttribute(ExifInterface.TAG_ORIENTATION).equalsIgnoreCase("3")) {
+                                cameraPictureRotation = 180;
+                            }
+                        }
                     } catch (FileNotFoundException e) {
                         Log.d(TAG, "File not found: " + e.getMessage());
                     } catch (IOException e) {
@@ -802,12 +824,21 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             cameraSource.release();
         }
 
+        if (capture != null) {
+            capture.interrupt();
+            capture = null;
+        }
+
+        if (t != null) {
+            t.interrupt();
+            t = null;
+        }
+
         if (mTTS != null) {
             mTTS.stop();
             mTTS.shutdown();
         }
 
-        t.interrupt();
         finish();
     }
 
@@ -885,7 +916,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      * permissions for the application are granted
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
         Logging.log(TAG, "Permission granted!");
         if (allPermissionsGranted()) {
             initCameraSource();
@@ -999,7 +1031,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     private void restart() {
-        if (getText().equals(Holder.searchWord)) {
+        if (getText().equals(Holder.searchWord) && !secondTime) {
             return;
         }
         if (t != null) {
@@ -1022,6 +1054,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         bmp = null;
         bmphil = null;
         bmpaltr = null;
+        zoomIn = true;
 
         if (frameProcessor != null) {
             frameProcessor.setFinished();
@@ -1056,9 +1089,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         updateZoom();
 
         cameraSource.torch(flashlightOn);
-        if(flashlightOn) {
+        if (flashlightOn) {
             setImage(flashlight, R.raw.flashlight);
-        }else{
+        } else {
             setImage(flashlight, R.raw.flashlight_invert);
         }
 
@@ -1234,7 +1267,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
                 }
             }
-        }else if(cameraCapture) {
+        } else if (cameraCapture) {
             if (arr == null || arr.size() < 1) {
                 saySomething("Word is not found");
             } else {
@@ -1253,8 +1286,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
+    private void toggleZoomIcon() {
+        if (zoomIn) {
+            setImage(zoom, R.raw.zoomout);
+            zoomIn = false;
+        } else {
+            setImage(zoom, R.raw.zoomin);
+            zoomIn = true;
+        }
+    }
+
     private void zoomWord(Rect r, boolean b) {
         if (b) {
+            toggleZoomIcon();
             if (ziv.isNotZoomed()) {
                 adjustZoomLevel(r.width());
                 int x_tap = r.centerX();
@@ -1338,18 +1382,18 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 // updates search query if on zoomable image view screen
                 update(spokenText);
 
-                if(arr.size() != 1) {
+                if (arr.size() != 1) {
                     saySomething(spokenText + " found in " + arr.size() + " locations");
-                }else{
+                } else {
                     saySomething(spokenText + " found in 1 location");
                 }
-            }else if(cameraCapture){
+            } else if (cameraCapture) {
 
                 update(spokenText);
-
-                if(arr.size() != 1) {
+                //TODO check if word is found
+                if (arr != null && arr.size() != 1) {
                     saySomething(spokenText + " found in " + arr.size() + " locations");
-                }else{
+                } else {
                     saySomething(spokenText + " found in 1 location");
                 }
             }
@@ -1435,7 +1479,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 EmailIntentBuilder.from(MainActivity.this).to("luoreslab@gmail.com")
-                        .cc("singh.anikait@gmail.com") .subject("Issue from app")
+                        .cc("singh.anikait@gmail.com").subject("Issue from app")
                         .body("The issue I am facing is").start();
             }
         });
@@ -1644,7 +1688,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public void capture(View view) {
         findViewById(R.id.capture).setVisibility(View.GONE);
         findViewById(R.id.scan).setVisibility(View.GONE);
-        new Thread() {
+
+        if (capture != null) {
+            capture.interrupt();
+            capture = null;
+        }
+        capture = new Thread() {
             @Override
             public void run() {
                 getBitmap(true);
@@ -1659,6 +1708,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 }
 
                 final String[] found = new String[1];
+                found[0] = "";
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1668,46 +1718,62 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 });
 
                 //rotates image 90 degrees
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
-                boolean captureFailed = false;
-                if(found[0] != null || !found[0].equals(Holder.searchWord)) {
-                    secondTime = true;
-                    float angle = 0;
-                    arr = processBitmapMulti(found[0]);
-                    if (arr == null || arr.size() < 1) {
-                        bmpaltr = bmp;
-                        saySomething(found[0] + " is not present");
-                    } else {
-                        //user feedback
-                        bmpaltr = null;
-                        System.gc();
-                        frameProcessor.sort();
-                        angle = showPoints();
-                    }
-                    if (angle != 0) {
-                        rot = true;
-                        bmpaltr = highlightWordFound(bmp, arr);
-                        final float angleSet = angle;
-                        if (rot) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ziv.startAnimation(-(int) angleSet);
-                                }
-                            });
-                        }
+                if (bmp.getHeight() < bmp.getWidth()) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+                }
 
-                        if(arr.size() != 1) {
-                            saySomething(found[0] + " found in " + arr.size() + " locations");
-                        }else{
-                            saySomething(found[0] + " found in 1 location");
-                        }
-                    }
-                }else{
+                boolean captureFailed = false;
+                secondTime = true;
+                float angle = 0;
+                arr = processBitmapMulti(found[0]);
+                if (arr == null || arr.size() < 1) {
                     bmpaltr = bmp;
-                    captureFailed = true;
+                    if (found[0].equals(Holder.searchWord)) {
+                        saySomething("Please enter query");
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                update(found[0]);
+                                if(arr == null) {
+                                    saySomething(found[0] + " is not found");
+                                }else {
+                                    if (arr.size() != 1) {
+                                        saySomething(found[0] + " found in " + arr.size() + " locations");
+                                    } else {
+                                        saySomething(found[0] + " found in 1 location");
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    //user feedback
+                    bmpaltr = null;
+                    System.gc();
+                    frameProcessor.sort();
+                    angle = showPoints();
+                }
+                if (angle != 0) {
+                    rot = true;
+                    bmpaltr = highlightWordFound(bmp, arr);
+                    final float angleSet = angle;
+                    if (rot) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ziv.startAnimation(-(int) angleSet);
+                            }
+                        });
+                    }
+
+                    if (arr.size() != 1) {
+                        saySomething(found[0] + " found in " + arr.size() + " locations");
+                    } else {
+                        saySomething(found[0] + " found in 1 location");
+                    }
                 }
 
                 cameraCapture = true;
@@ -1738,17 +1804,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             next.setVisibility(View.VISIBLE);
                             previous.setVisibility(View.VISIBLE);
                             zoom.setVisibility(View.GONE);
-                        }else if(arr != null && arr.size() == 1){
+                        } else if (arr != null && arr.size() == 1) {
                             next.setVisibility(View.GONE);
                             previous.setVisibility(View.GONE);
                             zoom.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             next.setVisibility(View.GONE);
                             previous.setVisibility(View.GONE);
                             zoom.setVisibility(View.GONE);
                         }
 
-                        if(finalCaptureFailed) {
+                        if (finalCaptureFailed) {
                             if (arr == null || arr.size() <= 1) {
                                 zoom.setVisibility(View.GONE);
                                 next.setVisibility(View.GONE);
@@ -1758,7 +1824,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
                 });
             }
-        }.start();
+        };
+        capture.start();
     }
 
     public void toggleFlashlight(View view) {

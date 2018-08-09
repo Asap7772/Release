@@ -763,4 +763,8 @@ public class CameraSource {
     private void cleanScreen() {
         graphicOverlay.clear();
     }
+
+    public int getRotation(){
+        return rotation;
+    }
 }
