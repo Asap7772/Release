@@ -2,6 +2,7 @@ package edu.harvard.meei.supervisionsearch;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,8 +38,10 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.os.ConfigurationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -49,6 +52,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -62,6 +66,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -117,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     EditText search;
     SeekBar zoomBar;
     DecimalFormat format = new DecimalFormat("0.0");
+    boolean debug = false;
 
     private int progress = 0;
     SeekBar.OnSeekBarChangeListener a = new SeekBar.OnSeekBarChangeListener() {
@@ -151,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private Thread capture;
     private boolean zoomIn = true;
     private int cameraPictureRotation = 0;
+    private boolean checked = false;
+    private Thread zoomThread;
 
     private void updateZoom() {
         cameraSource.zoom(progress / 100.0);
@@ -345,11 +354,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         ziv.clearAnimation();
         //starts detection thread
         startFoundOnceThread();
+        startZoomedThread();
 
         if (savedInstanceState != null) {
             mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
             compProg = true;
             int zoomVal = mPreferences.getInt("zoom", 0);
+            checked = mPreferences.getBoolean("checked", false);
             zoomBar.setProgress(zoomVal);
             updateZoom();
             compProg = false;
@@ -392,7 +403,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     } else {
                         cameraSource.searching = true;
                     }
-                    //Log.d(TAG, "Searching");
                 }
 
                 runOnUiThread(new Runnable() {
@@ -515,7 +525,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
                         restart.setVisibility(View.VISIBLE);
-                        download.setVisibility(View.VISIBLE);
+                        if(debug) {
+                            download.setVisibility(View.VISIBLE);
+                        }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
                         preview.setVisibility(View.GONE);
@@ -719,6 +731,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         yuvImage.compressToJpeg(new Rect(0, 0, cameraSource.getWidth(), cameraSource.getHeight()), 100, os);
         byte[] jpegByteArray = os.toByteArray();
         bmp = BitmapFactory.decodeByteArray(jpegByteArray, 0, jpegByteArray.length);
+
+        if(cameraSource.getRotation() == 3){
+            Matrix matrix = new Matrix();
+            matrix.postRotate(180);
+            bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+        }
     }
 
     private void getBitmap(boolean camera) {
@@ -777,6 +795,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         compProg = true;
         int zoomVal = mPreferences.getInt("zoom", 0);
+        checked = mPreferences.getBoolean("checked", false);
         zoomBar.setProgress(zoomVal);
         performInitialZoom();
         compProg = false;
@@ -810,6 +829,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         preferencesEditor.clear();
         preferencesEditor.putInt("zoom", zoomBar.getProgress());
         preferencesEditor.putString("region", scheme.name());
+        preferencesEditor.putBoolean("checked", checked);
         preferencesEditor.apply();
     }
 
@@ -832,6 +852,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         if (t != null) {
             t.interrupt();
             t = null;
+        }
+
+        if (zoomThread != null) {
+            zoomThread.interrupt();
+            zoomThread = null;
         }
 
         if (mTTS != null) {
@@ -1055,6 +1080,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         bmphil = null;
         bmpaltr = null;
         zoomIn = true;
+        camera = false;
 
         if (frameProcessor != null) {
             frameProcessor.setFinished();
@@ -1108,7 +1134,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     Bitmap highlightWordFound(Bitmap mutableBitmap, Rect rect) {
         //set color and style of the paint
         Paint mPaint = new Paint();
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.GREEN);
         mPaint.setStyle(Paint.Style.STROKE);
         if (camera) {
             mPaint.setStrokeWidth(PICTURE_STROKE);
@@ -1141,7 +1167,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     Bitmap highlightWordFound(Bitmap mutableBitmap, ArrayList<Rect> r) {
         //set color and style of the paint
         Paint mPaint = new Paint();
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.GREEN);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(5);
 
@@ -1206,7 +1232,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             int y_tap = r.centerY();
 
             ziv.externalDoubleTapGestureGenerator(x_tap, y_tap);
-            Log.w("Location: ", "( " + r.right + " , " + r.bottom + ")");
+            Log.w("Location: ", "( " + x_tap + " , " + y_tap+ ")");
         } else {
             ziv.setMaxScale(ziv.getCurrentScale());
             ziv.externalDoubleTapGestureGenerator(ziv.getWidth() / 2, ziv.getHeight() / 2);
@@ -1217,6 +1243,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             int y_tap = r.centerY();
 
             performSecondTap(x_tap, y_tap);
+            Log.w("Location: ", "( " + x_tap + " , " + y_tap+ ")");
         }
     }
 
@@ -1383,7 +1410,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 update(spokenText);
 
                 if (arr.size() != 1) {
-                    saySomething(spokenText + " found in " + arr.size() + " locations");
+                    if(arr.size() == 0){
+                        saySomething(spokenText + " is not found");
+                    }else {
+                        saySomething(spokenText + " found in " + arr.size() + " locations");
+                    }
                 } else {
                     saySomething(spokenText + " found in 1 location");
                 }
@@ -1392,7 +1423,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 update(spokenText);
                 //TODO check if word is found
                 if (arr != null && arr.size() != 1) {
-                    saySomething(spokenText + " found in " + arr.size() + " locations");
+                    if(arr.size() == 0){
+                        saySomething(spokenText + " is not found");
+                    }else {
+                        saySomething(spokenText + " found in " + arr.size() + " locations");
+                    }
                 } else {
                     saySomething(spokenText + " found in 1 location");
                 }
@@ -1478,8 +1513,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         alert.setNegativeButton("Contact Us", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                EmailIntentBuilder.from(MainActivity.this).to("luoreslab@gmail.com")
-                        .cc("singh.anikait@gmail.com").subject("Issue from app")
+                EmailIntentBuilder.from(MainActivity.this).to("support_vision@meei.harvard.edu")
+                        .subject("Issue from app")
                         .body("The issue I am facing is").start();
             }
         });
@@ -1567,14 +1602,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(this.getApplicationContext().getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
+                Environment.DIRECTORY_PICTURES), "SupervisionSearch");
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d("SupervisionSearch", "failed to create directory");
                 return null;
             }
         }
@@ -1603,14 +1636,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS), "RealOCR");
+                Environment.DIRECTORY_DOWNLOADS), "SupervisionSearch");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d("SupervisionSearch", "failed to create directory");
                 return null;
             }
         }
@@ -1627,18 +1660,53 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void settings(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-        // This activity implements OnMenuItemClickListener
+        ContextWrapper wrapper = new ContextThemeWrapper(this, R.style.popup);
+        PopupMenu popup = new PopupMenu(wrapper, view);
         popup.setOnMenuItemClickListener(this);
+        setForceShowIcon(popup);
         popup.inflate(R.menu.actions);
+        popup.getMenu().getItem(0).setChecked(this.checked);
         popup.show();
+    }
+
+    public static void setForceShowIcon(PopupMenu popupMenu) {
+        try {
+            Field[] fields = popupMenu.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                if ("mPopup".equals(field.getName())) {
+                    field.setAccessible(true);
+                    Object menuPopupHelper = field.get(popupMenu);
+                    Class<?> classPopupHelper = Class.forName(menuPopupHelper
+                            .getClass().getName());
+                    Method setForceIcons = classPopupHelper.getMethod(
+                            "setForceShowIcon", boolean.class);
+                    setForceIcons.invoke(menuPopupHelper, true);
+                    break;
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.setScheme:
-                setSchemeDialog();
+                boolean checked = item.isChecked();
+                if(checked){
+                    scheme = ClassificationScheme.NONE;
+                    item.setChecked(false);
+                    this.checked = false;
+                    saySomething("Finding in the Whole Screen");
+                    Toast.makeText(this,"Finding in the Whole Screen", Toast.LENGTH_LONG).show();
+                }else{
+                    scheme = ClassificationScheme.FIND_AT_CENTER;
+                    item.setChecked(true);
+                    this.checked = true;
+                    saySomething("Finding in the Center Slice");
+                    Toast.makeText(this,"Finding in the Center Slice", Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.infoPopup:
                 setInfoDialog();
@@ -1686,6 +1754,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     public void capture(View view) {
+        zoomIn = true;
+        setImage(zoom, R.raw.zoomin);
+
         findViewById(R.id.capture).setVisibility(View.GONE);
         findViewById(R.id.scan).setVisibility(View.GONE);
 
@@ -1696,6 +1767,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         capture = new Thread() {
             @Override
             public void run() {
+                camera = true;
                 getBitmap(true);
 
                 while (!pictureDone) {
@@ -1741,7 +1813,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                     saySomething(found[0] + " is not found");
                                 }else {
                                     if (arr.size() != 1) {
-                                        saySomething(found[0] + " found in " + arr.size() + " locations");
+                                        if(arr.size() == 0){
+                                            saySomething(found[0] + " is not found");
+                                        }else{
+                                            saySomething(found[0] + " found in " + arr.size() + " locations");
+                                        }
                                     } else {
                                         saySomething(found[0] + " found in 1 location");
                                     }
@@ -1770,7 +1846,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
 
                     if (arr.size() != 1) {
-                        saySomething(found[0] + " found in " + arr.size() + " locations");
+                        if(arr.size() == 0){
+                            saySomething(found[0] + " is not found");
+                        }else {
+                            saySomething(found[0] + " found in " + arr.size() + " locations");
+                        }
                     } else {
                         saySomething(found[0] + " found in 1 location");
                     }
@@ -1786,7 +1866,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setImageBitmap(bmpaltr);
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
-                        download.setVisibility(View.VISIBLE);
+                        if(debug) {
+                            download.setVisibility(View.VISIBLE);
+                        }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
                         preview.setVisibility(View.GONE);
@@ -1852,5 +1934,42 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         compProg = true;
         zoomBar.setProgress(zoom);
         compProg = false;
+    }
+
+    private void startZoomedThread(){
+        if(zoomThread != null){
+            zoomThread.interrupt();
+            zoomThread = null;
+        }
+
+        zoomThread = new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                while (true){
+                    if(ziv.zoomChanged){
+                        if(ziv.isNotZoomed()){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    zoomIn = true;
+                                    setImage(zoom, R.raw.zoomin);
+                                }
+                            });
+                        }else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    zoomIn = false;
+                                    setImage(zoom, R.raw.zoomout);
+                                }
+                            });
+                        }
+                        ziv.zoomChanged = false;
+                    }
+                }
+            }
+        };
+        zoomThread.start();
     }
 }

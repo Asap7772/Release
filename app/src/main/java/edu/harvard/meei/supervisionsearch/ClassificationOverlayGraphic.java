@@ -8,7 +8,7 @@ import android.graphics.RectF;
 
 public class ClassificationOverlayGraphic extends GraphicOverlay.Graphic {
     //variables
-    private static final float STROKE_WIDTH = 4.0f;
+    private static final float STROKE_WIDTH = 8.0f;
     private final Paint rectPaint;
     private final int Rect_COLOR = Color.RED;
     private ClassificationScheme scheme = ClassificationScheme.FIND_AT_CENTER;

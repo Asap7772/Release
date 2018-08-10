@@ -78,6 +78,7 @@ public class ZoomableImageView extends ImageView {
     private MyGestureDetector myGestureDetector;
 
     private int defaultScale;
+    public boolean zoomChanged;
 
     // GETTER & SETTERS
     public float getMaxScale() {
@@ -270,7 +271,7 @@ public class ZoomableImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        this.zoomChanged = true;
         if (gestureDetector.onTouchEvent(event)) {
             return true;
         }
@@ -594,6 +595,7 @@ public class ZoomableImageView extends ImageView {
             mHandler.post(mUpdateImageScale);
 
             Log.d(TAG, "Normal double tap " + event.getX() + "," + event.getY());
+
             return true;
         }
 

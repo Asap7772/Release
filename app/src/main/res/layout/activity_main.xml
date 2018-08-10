@@ -108,9 +108,12 @@
             android:layout_width="@dimen/size"
             android:layout_height="@dimen/size"
             android:layout_margin="10dp"
-            android:src="@drawable/download"
+            android:src="@raw/download"
             android:id="@+id/download"
-            android:onClick="download" />
+            android:onClick="download"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="?android:attr/selectableItemBackground"/>
     </LinearLayout>
 
     <LinearLayout
@@ -159,51 +162,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:gravity="left">
-
-        <ImageButton
-            android:id="@+id/zoomButton"
-            android:layout_width="@dimen/size"
-            android:layout_height="@dimen/size"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginLeft="@dimen/sideMargin"
-            android:onClick="zoom"
-            android:background="?android:attr/selectableItemBackground"/>
-
-        <ImageButton
-            android:id="@+id/previous"
-            android:layout_width="@dimen/size"
-            android:layout_height="@dimen/size"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginLeft="@dimen/sideMargin"
-            android:onClick="previous"
-            android:src="@raw/left_arrow"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:background="?android:attr/selectableItemBackground"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="right">
-        <ImageButton
-            android:id="@+id/next"
-            android:layout_width="@dimen/size"
-            android:layout_height="@dimen/size"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginRight="@dimen/sideMargin"
-            android:onClick="next"
-            android:src="@raw/right_arrow"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:background="?android:attr/selectableItemBackground"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:gravity="bottom|center_horizontal">
         <LinearLayout
             android:layout_width="wrap_content"
@@ -236,15 +194,43 @@
                 />
 
             <ImageButton
+                android:id="@+id/zoomButton"
+                android:layout_width="@dimen/zoom_size"
+                android:layout_height="@dimen/zoom_size"
+                android:onClick="zoom"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <ImageButton
+                android:id="@+id/previous"
+                android:layout_width="@dimen/size"
+                android:layout_height="@dimen/size"
+                android:onClick="previous"
+                android:src="@raw/left_arrow"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <ImageButton
                 android:id="@+id/restart"
                 android:layout_width="@dimen/size"
                 android:layout_height="@dimen/size"
-                android:layout_margin="10dp"
+                android:layout_marginLeft="60dp"
                 android:onClick="restart"
                 android:src="@raw/restart"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:background="?android:attr/selectableItemBackground" />
+
+            <ImageButton
+                android:id="@+id/next"
+                android:layout_width="@dimen/size"
+                android:layout_height="@dimen/size"
+                android:layout_marginLeft="60dp"
+                android:onClick="next"
+                android:src="@raw/right_arrow"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"/>
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

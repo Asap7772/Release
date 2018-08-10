@@ -2,7 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/setScheme"
         android:icon="@drawable/zoom"
-        android:title="Scanning Region" />
+        android:title="Scan Slice "
+        android:checkable="true"/>
     <item android:id="@+id/infoPopup"
         android:icon="@drawable/info"
         android:title="Info" />
