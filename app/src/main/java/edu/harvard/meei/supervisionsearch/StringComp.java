@@ -4,26 +4,44 @@ import java.util.Arrays;
 
 public class StringComp {
 
-    public static final double TRESHOLD_VALUE = 0.5;
+    public static final double TRESHOLD_VALUE = 0.4;
 
     public static boolean stringFound(String arr[], String search){
         for(String str: arr){
+            str = str.trim();
             String[] words = str.split(" ");
             for(String x: words){
-                if(stringSimilar(x, search)) return true;
+                if(stringSimilar(x, search)){
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public static boolean stringSimilar(String x, String y) {
-        if(strDigit(x) || strDigit(y)){
-           return x.equals(y);
+        if(x.contains("-")){
+            if(!y.contains("-")){
+                String[] arr = x.split("-");
+                if(!allDigits(arr)) {
+                    for (String str : arr) {
+                        if (stringSimilar(str, y)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
         }
+
+        if(strDigit(x) || strDigit(y)){
+            return x.equals(y);
+        }
+
 
         String x_mod = x.replaceAll("[^A-Za-z]+", "").toLowerCase();
         String y_mod = y.replaceAll("[^A-Za-z]+", "").toLowerCase();
-        
+
         // If two strings are equal
         if(x_mod.equals(y_mod)) return true;
 
@@ -33,6 +51,14 @@ public class StringComp {
         //If neither of the above two case is true
         double val = StringComp.Distance(x_mod,y_mod)/ Math.min(x_mod.length(), y_mod.length());
         return val<StringComp.TRESHOLD_VALUE;
+    }
+
+    private static boolean allDigits(String[] arr) {
+        for(String x: arr){
+            if(!strDigit(x)){
+                return false;
+            }
+        }return true;
     }
 
     public static boolean strDigit(String s) {
@@ -45,6 +71,7 @@ public class StringComp {
         }
         return false;
     }
+
 
     //edit distance
     //deletion and insertion cost 1
