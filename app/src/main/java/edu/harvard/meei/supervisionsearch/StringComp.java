@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class StringComp {
 
-    public static final double TRESHOLD_VALUE = 0.4;
+    public static final double TRESHOLD_VALUE = 0.3;
 
     public static boolean stringFound(String arr[], String search){
         for(String str: arr){
