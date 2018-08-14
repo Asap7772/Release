@@ -38,7 +38,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.os.ConfigurationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuPopupHelper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -52,7 +51,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -155,15 +153,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private int oldWidth;
     private SharedPreferences mPreferences;
     private ImageButton flashlight;
-    private Thread capture;
     private boolean zoomIn = true;
     private int cameraPictureRotation = 0;
     private boolean checked = false;
-    private Thread zoomThread;
 
-    private void updateZoom() {
-        cameraSource.zoom(progress / 100.0);
-    }
 
     // =============================================================================================
     // Flags and other primitive values
@@ -182,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     // Listener Variables and Threads
     // =============================================================================================
 
-    private Thread t;
+    private Thread capture, t, zoomThread;
 
     private boolean cameraCapture = false;
     private TextView.OnEditorActionListener listener = new TextView.OnEditorActionListener() {
@@ -207,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         update(query);
 
                         if (arr.size() != 1) {
-                            saySomething(query + " found in " + arr.size() + " locations");
+                            if(arr.size() == 0){
+                                saySomething(query + " is not found");
+                            }else {
+                                saySomething(query + " found in " + arr.size() + " locations");
+                            }
                         } else {
                             saySomething(query + " found in 1 location");
                         }
@@ -370,6 +367,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
+    private void updateZoom() {
+        cameraSource.zoom(progress / 100.0);
+    }
+
     /**
      * Method that creates the overarching thread that waits until the word is found and highlights
      * the word when found.
@@ -382,6 +383,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             t = null;
             System.gc();
         }
+
+        if (capture != null) {
+            capture.interrupt();
+            capture = null;
+            System.gc();
+        }
+
         t = new Thread() {
             @Override
             public void run() {
@@ -525,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
                         restart.setVisibility(View.VISIBLE);
-                        if(debug) {
+                        if (debug) {
                             download.setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
@@ -732,7 +740,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         byte[] jpegByteArray = os.toByteArray();
         bmp = BitmapFactory.decodeByteArray(jpegByteArray, 0, jpegByteArray.length);
 
-        if(cameraSource.getRotation() == 3){
+        if (cameraSource.getRotation() == 3) {
             Matrix matrix = new Matrix();
             matrix.postRotate(180);
             bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
@@ -1232,7 +1240,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             int y_tap = r.centerY();
 
             ziv.externalDoubleTapGestureGenerator(x_tap, y_tap);
-            Log.w("Location: ", "( " + x_tap + " , " + y_tap+ ")");
+            Log.w("Location: ", "( " + x_tap + " , " + y_tap + ")");
         } else {
             ziv.setMaxScale(ziv.getCurrentScale());
             ziv.externalDoubleTapGestureGenerator(ziv.getWidth() / 2, ziv.getHeight() / 2);
@@ -1243,7 +1251,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             int y_tap = r.centerY();
 
             performSecondTap(x_tap, y_tap);
-            Log.w("Location: ", "( " + x_tap + " , " + y_tap+ ")");
+            Log.w("Location: ", "( " + x_tap + " , " + y_tap + ")");
         }
     }
 
@@ -1410,9 +1418,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 update(spokenText);
 
                 if (arr.size() != 1) {
-                    if(arr.size() == 0){
+                    if (arr.size() == 0) {
                         saySomething(spokenText + " is not found");
-                    }else {
+                    } else {
                         saySomething(spokenText + " found in " + arr.size() + " locations");
                     }
                 } else {
@@ -1423,9 +1431,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 update(spokenText);
                 //TODO check if word is found
                 if (arr != null && arr.size() != 1) {
-                    if(arr.size() == 0){
+                    if (arr.size() == 0) {
                         saySomething(spokenText + " is not found");
-                    }else {
+                    } else {
                         saySomething(spokenText + " found in " + arr.size() + " locations");
                     }
                 } else {
@@ -1694,18 +1702,18 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         switch (item.getItemId()) {
             case R.id.setScheme:
                 boolean checked = item.isChecked();
-                if(checked){
+                if (checked) {
                     scheme = ClassificationScheme.NONE;
                     item.setChecked(false);
                     this.checked = false;
                     saySomething("Finding in the Whole Screen");
-                    Toast.makeText(this,"Finding in the Whole Screen", Toast.LENGTH_LONG).show();
-                }else{
+                    Toast.makeText(this, "Finding in the Whole Screen", Toast.LENGTH_LONG).show();
+                } else {
                     scheme = ClassificationScheme.FIND_AT_CENTER;
                     item.setChecked(true);
                     this.checked = true;
                     saySomething("Finding in the Center Slice");
-                    Toast.makeText(this,"Finding in the Center Slice", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Finding in the Center Slice", Toast.LENGTH_LONG).show();
                 }
                 return true;
             case R.id.infoPopup:
@@ -1760,10 +1768,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         findViewById(R.id.capture).setVisibility(View.GONE);
         findViewById(R.id.scan).setVisibility(View.GONE);
 
+        bmp = null;
+        if (t != null) {
+            t.interrupt();
+            t = null;
+            System.gc();
+        }
+
         if (capture != null) {
             capture.interrupt();
             capture = null;
+            System.gc();
         }
+
         capture = new Thread() {
             @Override
             public void run() {
@@ -1805,51 +1822,74 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     if (found[0].equals(Holder.searchWord)) {
                         saySomething("Please enter query");
                     } else {
+                        final boolean[] ui = {false};
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 update(found[0]);
-                                if(arr == null) {
+                                if (arr == null) {
                                     saySomething(found[0] + " is not found");
-                                }else {
+                                } else {
                                     if (arr.size() != 1) {
-                                        if(arr.size() == 0){
+                                        if (arr.size() == 0) {
                                             saySomething(found[0] + " is not found");
-                                        }else{
+                                        } else {
                                             saySomething(found[0] + " found in " + arr.size() + " locations");
                                         }
                                     } else {
                                         saySomething(found[0] + " found in 1 location");
                                     }
                                 }
+                                ui[0] = true;
                             }
                         });
+                        while (!ui[0]) {
+
+                        }
+                        if (arr != null) {
+                            angle = showPoints();
+                        }
                     }
                 } else {
                     //user feedback
-                    bmpaltr = null;
+                    bmpaltr = bmp;
                     System.gc();
                     frameProcessor.sort();
                     angle = showPoints();
                 }
-                if (angle != 0) {
-                    rot = true;
-                    bmpaltr = highlightWordFound(bmp, arr);
-                    final float angleSet = angle;
-                    if (rot) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ziv.startAnimation(-(int) angleSet);
-                            }
-                        });
-                    }
 
+                rot = true;
+                if (arr != null) {
+                    bmpaltr = highlightWordFound(bmp, arr);
+                }
+                final float angleSet = angle;
+                if (rot) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ziv.startAnimation(-(int) angleSet);
+                        }
+                    });
+                }
+
+                if (arr == null) {
+                    if (found[0].equals(Holder.searchWord)) {
+                        saySomething("Please enter query");
+                    } else {
+                        saySomething(found[0] + " is not found");
+                    }
+                    captureFailed = true;
+                } else {
                     if (arr.size() != 1) {
-                        if(arr.size() == 0){
-                            saySomething(found[0] + " is not found");
-                        }else {
-                            saySomething(found[0] + " found in " + arr.size() + " locations");
+                        if (found[0].equals(Holder.searchWord)) {
+                            saySomething("Please enter query");
+                        } else {
+                            if (arr.size() == 0) {
+                                saySomething(found[0] + " is not found");
+                                captureFailed = true;
+                            } else {
+                                saySomething(found[0] + " found in " + arr.size() + " locations");
+                            }
                         }
                     } else {
                         saySomething(found[0] + " found in 1 location");
@@ -1866,7 +1906,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setImageBitmap(bmpaltr);
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
-                        if(debug) {
+                        if (debug) {
                             download.setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
@@ -1936,19 +1976,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         compProg = false;
     }
 
-    private void startZoomedThread(){
-        if(zoomThread != null){
+    private void startZoomedThread() {
+        if (zoomThread != null) {
             zoomThread.interrupt();
             zoomThread = null;
         }
 
-        zoomThread = new Thread(){
+        zoomThread = new Thread() {
             @Override
             public void run() {
                 super.run();
-                while (true){
-                    if(ziv.zoomChanged){
-                        if(ziv.isNotZoomed()){
+                while (true) {
+                    if (ziv.zoomChanged) {
+                        if (ziv.isNotZoomed()) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1956,7 +1996,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                     setImage(zoom, R.raw.zoomin);
                                 }
                             });
-                        }else {
+                        } else {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
