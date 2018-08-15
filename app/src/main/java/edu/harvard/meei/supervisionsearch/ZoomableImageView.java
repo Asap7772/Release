@@ -1,9 +1,5 @@
 package edu.harvard.meei.supervisionsearch;
 
-/*
- * Created by Gautam on 7/17/17.
- */
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;

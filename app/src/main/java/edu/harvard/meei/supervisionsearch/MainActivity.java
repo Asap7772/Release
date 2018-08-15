@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private static final int SPEECH_REQUEST_CODE = 0;
     public static final int PERMISSION_REQUESTS = 1;
     public static final String TAG = "OCR Activity";
-    public static final int vibrateLength = 100;
+    public static final int vibrateLength = 50;
     private static final int MEDIA_TYPE_IMAGE = 14;
     private static final int MEDIA_TYPE_VIDEO = 15;
     private static final float VIDEO_STROKE = 5;
@@ -194,7 +194,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             event.getAction() == KeyEvent.ACTION_DOWN &&
                             event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 if (event == null || !event.isShiftPressed()) {
-                    saySomething("Searching for " + search.getText().toString());
+                    if (search.getText().toString().equals(Holder.searchWord)) {
+                        saySomething("Please enter query");
+                    }else {
+                        saySomething("Searching for " + search.getText().toString());
+                    }
                     String query = v.getText().toString();
                     if (success && secondTime) {
                         update(query);
@@ -1412,7 +1416,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             //set edit text's value to the spoken text
             search.setText(spokenText);
             //user output
-            saySomething("Searching for " + search.getText().toString());
+            if (search.getText().toString().equals(Holder.searchWord)) {
+                saySomething("Please enter query");
+            }else {
+                saySomething("Searching for " + search.getText().toString());
+            }
             if (success && secondTime) {
                 // updates search query if on zoomable image view screen
                 update(spokenText);
@@ -1943,6 +1951,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                 previous.setVisibility(View.GONE);
                             }
                         }
+                        restart.setVisibility(View.VISIBLE);
                     }
                 });
             }
