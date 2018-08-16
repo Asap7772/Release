@@ -380,8 +380,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      * the word when found.
      */
     private void startFoundOnceThread() {
-
-        bmp = null;
+        if(bmp != null) {
+            bmp.recycle();
+            bmp = null;
+        }
         if (t != null) {
             t.interrupt();
             t = null;
@@ -468,7 +470,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             return;
                         }
                         c = new Rect(translateX(c.left), translateY(c.top), translateX(c.right), translateY(c.bottom));
-                        bmpaltr = null;
+                        if(bmpaltr != null) {
+                            bmpaltr.recycle();
+                            bmpaltr = null;
+                        }
                         System.gc();
                         bmpaltr = highlightWordFound(bmp, c);
                     }
@@ -487,7 +492,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             if (camera) {
                                 c = new Rect(translateX(c.left), translateY(c.top), translateX(c.right), translateY(c.bottom));
                             }
-                            bmpaltr = null;
+                            if(bmpaltr != null) {
+                                bmpaltr.recycle();
+                                bmpaltr = null;
+                            }
                             System.gc();
                             bmpaltr = highlightWordFound(bmp, c);
                             if (camera) {
@@ -499,7 +507,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         }
                     } else {
                         //user feedback
-                        bmpaltr = null;
+                        if(bmpaltr != null) {
+                            bmpaltr.recycle();
+                            bmpaltr = null;
+                        }
                         System.gc();
                         frameProcessor.sort();
                         angle = showPoints();
@@ -637,7 +648,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     saySomething("Word not Found");
                 }
             }
-            bmpaltr = null;
+            if(bmpaltr != null) {
+                bmpaltr.recycle();
+                bmpaltr = null;
+            }
             System.gc();
             bmpaltr = highlightWordFound(bmp, c);
         } else {
@@ -650,7 +664,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 Toast.makeText(this, "Word not Found", Toast.LENGTH_LONG).show();
                 saySomething("Word not Found");
             } else {
-                bmpaltr = null;
+                if(bmpaltr != null) {
+                    bmpaltr.recycle();
+                    bmpaltr = null;
+                }
                 System.gc();
                 bmpaltr = highlightWordFound(bmp, arr);
                 frameProcessor.sort();
@@ -1088,10 +1105,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         num = 0;
         multi = true;
         nextB = true;
-        bmp = null;
+        if(bmp != null) {
+            bmp.recycle();
+            bmp = null;
+        }
         bmphil = null;
-        bmpaltr = null;
+        if(bmpaltr != null) {
+            bmpaltr.recycle();
+            bmpaltr = null;
+        }
         zoomIn = true;
+        setImage(zoom, R.raw.zoomin);
         camera = false;
 
         if (frameProcessor != null) {
@@ -1776,7 +1800,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         findViewById(R.id.capture).setVisibility(View.GONE);
         findViewById(R.id.scan).setVisibility(View.GONE);
 
-        bmp = null;
+        if(bmp != null) {
+            bmp.recycle();
+            bmp = null;
+        }
+
         if (t != null) {
             t.interrupt();
             t = null;
