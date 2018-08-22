@@ -381,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      */
     private void startFoundOnceThread() {
         if(bmp != null) {
-            bmp.recycle();
             bmp = null;
         }
         if (t != null) {
@@ -471,7 +470,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         }
                         c = new Rect(translateX(c.left), translateY(c.top), translateX(c.right), translateY(c.bottom));
                         if(bmpaltr != null) {
-                            bmpaltr.recycle();
                             bmpaltr = null;
                         }
                         System.gc();
@@ -493,7 +491,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                 c = new Rect(translateX(c.left), translateY(c.top), translateX(c.right), translateY(c.bottom));
                             }
                             if(bmpaltr != null) {
-                                bmpaltr.recycle();
                                 bmpaltr = null;
                             }
                             System.gc();
@@ -508,7 +505,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     } else {
                         //user feedback
                         if(bmpaltr != null) {
-                            bmpaltr.recycle();
                             bmpaltr = null;
                         }
                         System.gc();
@@ -649,7 +645,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 }
             }
             if(bmpaltr != null) {
-                bmpaltr.recycle();
                 bmpaltr = null;
             }
             System.gc();
@@ -665,7 +660,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 saySomething("Word not Found");
             } else {
                 if(bmpaltr != null) {
-                    bmpaltr.recycle();
                     bmpaltr = null;
                 }
                 System.gc();
@@ -1106,12 +1100,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         multi = true;
         nextB = true;
         if(bmp != null) {
-            bmp.recycle();
             bmp = null;
         }
         bmphil = null;
         if(bmpaltr != null) {
-            bmpaltr.recycle();
             bmpaltr = null;
         }
         zoomIn = true;
@@ -1801,7 +1793,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         findViewById(R.id.scan).setVisibility(View.GONE);
 
         if(bmp != null) {
-            bmp.recycle();
             bmp = null;
         }
 
