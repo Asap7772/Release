@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">SuperVision Search</string>
     <string name="hint">Search</string>
     <string name="Button_Ocr_Text">Mode</string>
     <string name="chooseButton">Options</string>
@@ -52,13 +52,13 @@
     <string name="w46">found in</string>
     <string name="w47">locations</string>
     <string name="w48">found in 1 location</string>
-    <string name="m1">Scan Slice</string>
-    <string name="m2">Info</string>
-    <string name="m3">Language Select</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
         <item>VERTICAL</item>
         <item>HORIZONTAL</item>
     </string-array>
+    <string name="m1">Scan Slice</string>
+    <string name="m2">Info</string>
+    <string name="m3">Language Select</string>
 </resources>

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +26,7 @@ import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -72,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import de.cketti.mailto.EmailIntentBuilder;
 
@@ -88,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private static final int MEDIA_TYPE_VIDEO = 15;
     private static final float VIDEO_STROKE = 5;
     private static final float PICTURE_STROKE = 40;
-    private String sharedPrefFile = "com.example.anikaitsingh.realtimecamerasource";
+    private String sharedPrefFile = "edu.harvard.meei.supervisionsearch.release";
     private float mDist = 0;
 
 
@@ -152,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private ImageButton restart;
     private int oldWidth;
     private SharedPreferences mPreferences;
+    private Locale locale;
     private ImageButton flashlight;
     private boolean zoomIn = true;
     private int cameraPictureRotation = 0;
@@ -195,9 +199,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                 if (event == null || !event.isShiftPressed()) {
                     if (search.getText().toString().equals(Holder.searchWord)) {
-                        saySomething("Please enter query");
+                        saySomething(getString(R.string.w1));
                     }else {
-                        saySomething("Searching for " + search.getText().toString());
+                        saySomething(getString(R.string.w2) + search.getText().toString());
                     }
                     String query = v.getText().toString();
                     if (success && secondTime) {
@@ -205,20 +209,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                         if (arr.size() != 1) {
                             if(arr.size() == 0){
-                                saySomething(query + " is not found");
+                                saySomething(query + getString(R.string.w3));
                             }else {
-                                saySomething(query + " found in " + arr.size() + " locations");
+                                saySomething(query + getString(R.string.w4) + arr.size() + getString(R.string.w5));
                             }
                         } else {
-                            saySomething(query + " found in 1 location");
+                            saySomething(query + getString(R.string.w6));
                         }
                     } else if (cameraCapture) {
                         update(query);
 
                         if (arr.size() != 1) {
-                            saySomething(query + " found in " + arr.size() + " locations");
+                            saySomething(query + getString(R.string.w7) + arr.size() + getString(R.string.w8));
                         } else {
-                            saySomething(query + " found in 1 location");
+                            saySomething(query + getString(R.string.w9));
                         }
                     }
                     hideKeyboard(MainActivity.this);
@@ -290,7 +294,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     //sets boolean touch to true
-                    cameraSource.touch = true;
+                    if(getText().equals(Holder.searchWord)){
+                        saySomething("Please Enter Query");
+                    }else {
+                        cameraSource.touch = true;
+                    }
                 } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
                     //sets boolean lift to true if the touch variable was true
                     if (cameraSource.touch) {
@@ -366,6 +374,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             updateZoom();
             compProg = false;
             scheme = ClassificationScheme.valueOf(mPreferences.getString("region", ClassificationScheme.NONE.name()));
+            String val = mPreferences.getString("language","");
+            locale = generateLocale(val);
+            changeLanguageLocale(locale);
+            mTTS.setLanguage(locale);
         } else {
             mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         }
@@ -484,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         if (c == null) {
                             //so that app does not crash
                             bmpaltr = bmp;
-                            saySomething(found + " is not present");
+                            saySomething(found + getString(R.string.w10));
                         } else {
                             //user feedback
                             if (camera) {
@@ -496,9 +508,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             System.gc();
                             bmpaltr = highlightWordFound(bmp, c);
                             if (camera) {
-                                saySomething(found + " is not present");
+                                saySomething(found + getString(R.string.w11));
                             } else {
-                                saySomething(found + "found in one location");
+                                saySomething(found + getString(R.string.w12));
                                 prevFrame = true;
                             }
                         }
@@ -528,9 +540,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
 
                     if (arr.size() != 1) {
-                        saySomething(found + " found in " + arr.size() + " locations");
+                        saySomething(found + getString(R.string.w13) + arr.size() + getString(R.string.w14));
                     } else {
-                        saySomething(found + " found in 1 location");
+                        saySomething(found + getString(R.string.w15));
                     }
                 } else {
                     if (!prevFrame) bmpaltr = bmp;
@@ -641,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     //if word not found in current frame or previous frame
                     vibratePhone();
                     Toast.makeText(this, "Word not Found", Toast.LENGTH_LONG).show();
-                    saySomething("Word not Found");
+                    saySomething(getString(R.string.w16));
                 }
             }
             if(bmpaltr != null) {
@@ -657,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 //if word not found in current frame
                 vibratePhone();
                 Toast.makeText(this, "Word not Found", Toast.LENGTH_LONG).show();
-                saySomething("Word not Found");
+                saySomething(getString(R.string.w17));
             } else {
                 if(bmpaltr != null) {
                     bmpaltr = null;
@@ -852,6 +864,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         preferencesEditor.clear();
         preferencesEditor.putInt("zoom", zoomBar.getProgress());
         preferencesEditor.putString("region", scheme.name());
+        if(locale != null){
+            preferencesEditor.putString("language", locale.getDisplayLanguage().toLowerCase());
+            Log.e("Pause", locale.getDisplayLanguage().toLowerCase());
+        }
         preferencesEditor.putBoolean("checked", checked);
         preferencesEditor.apply();
     }
@@ -1073,9 +1089,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      */
 
     private void forceRestart() {
+        Intent intent= new Intent(this, MainActivity.class);
+        overridePendingTransition(0, 0);
         finish();
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
+        overridePendingTransition(0, 0);
+        startActivity(intent);
     }
 
     private void restart() {
@@ -1324,7 +1342,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             }
         } else if (cameraCapture) {
             if (arr == null || arr.size() < 1) {
-                saySomething("Word is not found");
+                saySomething(getString(R.string.w18));
             } else {
                 //cyclic remainder
                 num = (num % arr.size() + arr.size()) % arr.size();
@@ -1433,9 +1451,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             search.setText(spokenText);
             //user output
             if (search.getText().toString().equals(Holder.searchWord)) {
-                saySomething("Please enter query");
+                saySomething(getString(R.string.w19));
             }else {
-                saySomething("Searching for " + search.getText().toString());
+                saySomething(getString(R.string.w20) + search.getText().toString());
             }
             if (success && secondTime) {
                 // updates search query if on zoomable image view screen
@@ -1443,12 +1461,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                 if (arr.size() != 1) {
                     if (arr.size() == 0) {
-                        saySomething(spokenText + " is not found");
+                        saySomething(spokenText + getString(R.string.w21));
                     } else {
-                        saySomething(spokenText + " found in " + arr.size() + " locations");
+                        saySomething(spokenText + getString(R.string.w22) + arr.size() + getString(R.string.w23));
                     }
                 } else {
-                    saySomething(spokenText + " found in 1 location");
+                    saySomething(spokenText + getString(R.string.w24));
                 }
             } else if (cameraCapture) {
 
@@ -1456,12 +1474,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 //TODO check if word is found
                 if (arr != null && arr.size() != 1) {
                     if (arr.size() == 0) {
-                        saySomething(spokenText + " is not found");
+                        saySomething(spokenText + getString(R.string.w25));
                     } else {
-                        saySomething(spokenText + " found in " + arr.size() + " locations");
+                        saySomething(spokenText + getString(R.string.w26) + arr.size() + getString(R.string.w27));
                     }
                 } else {
-                    saySomething(spokenText + " found in 1 location");
+                    saySomething(spokenText + getString(R.string.w28));
                 }
             }
 
@@ -1496,7 +1514,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      */
     public void speech(View view) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        String val = locale.getLanguage();
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, val);
         startActivityForResult(intent, SPEECH_REQUEST_CODE);
     }
 
@@ -1515,21 +1534,54 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         switch (which) {
                             case 0:
                                 scheme = ClassificationScheme.NONE;
-                                saySomething("Finding in the Whole Screen");
+                                saySomething(getString(R.string.w29));
                                 break;
                             case 1:
                                 scheme = ClassificationScheme.FIND_AT_CENTER;
-                                saySomething("Finding at the Center");
+                                saySomething(getString(R.string.w30));
                                 break;
                             case 2:
                                 scheme = ClassificationScheme.FIND_AT_TOP;
-                                saySomething("Finding at the Top");
+                                saySomething(getString(R.string.w31));
                                 break;
                             case 3:
                                 scheme = ClassificationScheme.FIND_AT_BOTTOM;
-                                saySomething("Finding at the Bottom");
+                                saySomething(getString(R.string.w32));
                                 break;
                         }
+                    }
+                });
+        builder.create().show();
+    }
+
+    public void setLanguageDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Please Select Scanning Region of Interest");
+        builder.setItems(new CharSequence[]
+                        {"english", "spanish", "italian", "german", "french"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position of the selected item
+                        switch (which) {
+                            case 1:
+                                locale = generateLocale("spanish");
+                                break;
+                            case 2:
+                                locale = generateLocale("italian");
+                                break;
+                            case 3:
+                                locale = generateLocale("german");
+                                break;
+                            case 4:
+                                locale = generateLocale("french");
+                                break;
+                            default:
+                                locale = generateLocale("english");
+                                break;
+                        }
+                        mTTS.setLanguage(locale);
+                        changeLanguageLocale(locale);
+                        saySomething(getString(R.string.w33) + locale.getDisplayLanguage());
                     }
                 });
         builder.create().show();
@@ -1584,8 +1636,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             if (mTTS != null) {
-                Log.e("Language Selection", ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0).toString());
-                int result = mTTS.setLanguage(ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0));
+                if(locale == null){
+                    locale = ConfigurationCompat.getLocales(Resources.getSystem().getConfiguration()).get(0);
+                }
+                Log.e("Language Selection", locale.getDisplayLanguage());
+                int result;
+                if(!isValidLanguage(locale)){
+                    result = mTTS.setLanguage(Locale.US);
+                    locale = Locale.US;
+                }else{
+                    result = mTTS.setLanguage(locale);
+                }
                 if (result == TextToSpeech.LANG_MISSING_DATA ||
                         result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(this, "TTS language is not supported", Toast.LENGTH_LONG).show();
@@ -1595,6 +1656,33 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             Toast.makeText(this, "TTS initialization failed",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    private boolean isValidLanguage(Locale locale) {
+        switch (locale.getDisplayLanguage().toLowerCase()){
+            case "english":
+            case "spanish":
+            case "italian":
+            case "german":
+            case "french":
+                return true;
+        }
+        return false;
+    }
+    private Locale generateLocale(String str){
+        switch (str){
+            case "english":
+                return Locale.US;
+            case "spanish":
+                return new Locale("es", "ES");
+            case "italian":
+                return Locale.ITALY;
+            case "german":
+                return Locale.GERMANY;
+            case "french":
+                return Locale.FRANCE;
+        }
+        return Locale.US;
     }
 
     /**
@@ -1616,6 +1704,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
      * @param text what to speak
      */
     private void saySomething(String text) {
+        mTTS.setLanguage(locale);
         saySomething(text, 0);
     }
 
@@ -1730,18 +1819,22 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     scheme = ClassificationScheme.NONE;
                     item.setChecked(false);
                     this.checked = false;
-                    saySomething("Finding in the Whole Screen");
+                    saySomething(getString(R.string.w34));
                     Toast.makeText(this, "Finding in the Whole Screen", Toast.LENGTH_LONG).show();
                 } else {
                     scheme = ClassificationScheme.FIND_AT_CENTER;
                     item.setChecked(true);
                     this.checked = true;
-                    saySomething("Finding in the Center Slice");
+                    saySomething(getString(R.string.w35));
                     Toast.makeText(this, "Finding in the Center Slice", Toast.LENGTH_LONG).show();
                 }
                 return true;
+            case R.id.language:
+                setLanguageDialog();
+                return true;
             case R.id.infoPopup:
                 setInfoDialog();
+                return true;
             default:
                 return false;
         }
@@ -1847,7 +1940,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 if (arr == null || arr.size() < 1) {
                     bmpaltr = bmp;
                     if (found[0].equals(Holder.searchWord)) {
-                        saySomething("Please enter query");
+                        saySomething(getString(R.string.w36));
                     } else {
                         final boolean[] ui = {false};
                         runOnUiThread(new Runnable() {
@@ -1855,16 +1948,16 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             public void run() {
                                 update(found[0]);
                                 if (arr == null) {
-                                    saySomething(found[0] + " is not found");
+                                    saySomething(found[0] + getString(R.string.w37));
                                 } else {
                                     if (arr.size() != 1) {
                                         if (arr.size() == 0) {
-                                            saySomething(found[0] + " is not found");
+                                            saySomething(found[0] + getString(R.string.w38));
                                         } else {
-                                            saySomething(found[0] + " found in " + arr.size() + " locations");
+                                            saySomething(found[0] + getString(R.string.w39) + arr.size() + getString(R.string.w40));
                                         }
                                     } else {
-                                        saySomething(found[0] + " found in 1 location");
+                                        saySomething(found[0] + getString(R.string.w41));
                                     }
                                 }
                                 ui[0] = true;
@@ -1901,25 +1994,25 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                 if (arr == null) {
                     if (found[0].equals(Holder.searchWord)) {
-                        saySomething("Please enter query");
+                        saySomething(getString(R.string.w42));
                     } else {
-                        saySomething(found[0] + " is not found");
+                        saySomething(found[0] + getString(R.string.w43));
                     }
                     captureFailed = true;
                 } else {
                     if (arr.size() != 1) {
                         if (found[0].equals(Holder.searchWord)) {
-                            saySomething("Please enter query");
+                            saySomething(getString(R.string.w44));
                         } else {
                             if (arr.size() == 0) {
-                                saySomething(found[0] + " is not found");
+                                saySomething(found[0] + getString(R.string.w45));
                                 captureFailed = true;
                             } else {
-                                saySomething(found[0] + " found in " + arr.size() + " locations");
+                                saySomething(found[0] + getString(R.string.w46) + arr.size() + getString(R.string.w47));
                             }
                         }
                     } else {
-                        saySomething(found[0] + " found in 1 location");
+                        saySomething(found[0] + getString(R.string.w48));
                     }
                 }
 
@@ -2039,5 +2132,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             }
         };
         zoomThread.start();
+    }
+
+    private void changeLanguageLocale(Locale locale){
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
     }
 }
