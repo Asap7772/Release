@@ -55,4 +55,10 @@
     <string name="m1">Scan Slice</string>
     <string name="m2">Informazioni</string>
     <string name="m3">Seleziona lingua</string>
+    <string-array name="spinnerArray">
+        <item>NONE</item>
+        <item>CENTER</item>
+        <item>VERTICAL</item>
+        <item>HORIZONTAL</item>
+    </string-array>
 </resources>

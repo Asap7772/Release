@@ -52,13 +52,13 @@
     <string name="w46">found in</string>
     <string name="w47">locations</string>
     <string name="w48">found in 1 location</string>
+    <string name="m1">Scan Slice</string>
+    <string name="m2">Info</string>
+    <string name="m3">Language Select</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
         <item>VERTICAL</item>
         <item>HORIZONTAL</item>
     </string-array>
-    <string name="m1">Scan Slice</string>
-    <string name="m2">Info</string>
-    <string name="m3">Language Select</string>
 </resources>

@@ -55,4 +55,10 @@
     <string name="m1">Scan-Schnitt</string>
     <string name="m2">Info</string>
     <string name="m3">Sprache auswählen</string>
+    <string-array name="spinnerArray">
+        <item>NONE</item>
+        <item>CENTER</item>
+        <item>VERTICAL</item>
+        <item>HORIZONTAL</item>
+    </string-array>
 </resources>

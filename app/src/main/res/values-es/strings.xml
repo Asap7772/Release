@@ -55,4 +55,10 @@
     <string name="m1">Escanear rebanada</string>
     <string name="m2">Información</string>
     <string name="m3">Selección de idioma</string>
+    <string-array name="spinnerArray">
+        <item>NONE</item>
+        <item>CENTER</item>
+        <item>VERTICAL</item>
+        <item>HORIZONTAL</item>
+    </string-array>
 </resources>
