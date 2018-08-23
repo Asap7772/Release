@@ -460,11 +460,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         MainActivity.this.playSound();
                     }
                 });
-
                 //rotates image 90 degrees
                 Matrix matrix = new Matrix();
                 matrix.postRotate(90);
                 bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+
+                String xyz = bmp.getWidth() + "," + bmp.getHeight();
+                Log.e("Bitmap Size", xyz);
+                Log.e("Bitmap Size", xyz);
+                Log.e("Bitmap Size", xyz);
+                Log.e("Bitmap Size", xyz);
+                Log.e("Bitmap Size", xyz);
 
                 secondTime = true;
                 boolean prevFrame = false;
@@ -1556,9 +1562,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     public void setLanguageDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Please Select Scanning Region of Interest");
+        builder.setTitle(R.string.Language);
         builder.setItems(new CharSequence[]
-                        {"english", "spanish", "italian", "german", "french"},
+                        {getString(R.string.l1), getString(R.string.l2), getString(R.string.l3), getString(R.string.l4), getString(R.string.l5), getString(R.string.l6), getString(R.string.l7)},
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position of the selected item
@@ -1574,6 +1580,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                 break;
                             case 4:
                                 locale = generateLocale("french");
+                                break;
+                            case 5:
+                                locale = generateLocale("danish");
+                                break;
+                            case 6:
+                                locale = generateLocale("portuguese");
                                 break;
                             default:
                                 locale = generateLocale("english");
@@ -1591,7 +1603,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
         WebView wv = new WebView(this);
-        wv.loadUrl("file:///android_res/raw/infopage.html");
+        wv.loadUrl(getString(R.string.filename));
 
         alert.setView(wv);
         alert.setNegativeButton("Contact Us", new DialogInterface.OnClickListener() {
@@ -1681,6 +1693,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 return Locale.GERMANY;
             case "french":
                 return Locale.FRANCE;
+            case "danish":
+                return new Locale("da", "DK");
+            case "portuguese":
+                return new Locale("pt","BR");
         }
         return Locale.US;
     }

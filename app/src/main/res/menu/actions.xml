@@ -9,5 +9,5 @@
         android:title="@string/m3" />
     <item android:id="@+id/infoPopup"
         android:icon="@drawable/info"
-        android:title="@string/m2" />
+        android:title="@string/m2"/>
 </menu>

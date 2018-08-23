@@ -55,10 +55,19 @@
     <string name="m1">Escanear rebanada</string>
     <string name="m2">Información</string>
     <string name="m3">Selección de idioma</string>
+    <string name="filename">file:///android_res/raw/infopage_es.html</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
         <item>VERTICAL</item>
         <item>HORIZONTAL</item>
     </string-array>
+    <string name="Language">Idioma</string>
+    <string name="l5">Francés</string>
+    <string name="l4">Alemán</string>
+    <string name="l3">Italiano</string>
+    <string name="l2">Español</string>
+    <string name="l1">Inglés</string>
+    <string name="l7">Portugués</string>
+    <string name="l6">Danés</string>
 </resources>

@@ -55,10 +55,19 @@
     <string name="m1">Scan Slice</string>
     <string name="m2">Informazioni</string>
     <string name="m3">Seleziona lingua</string>
+    <string name="filename">file:///android_res/raw/infopage_it.html</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
         <item>VERTICAL</item>
         <item>HORIZONTAL</item>
     </string-array>
+    <string name="Language">Lingua</string>
+    <string name="l2">Spagnolo</string>
+    <string name="l1">Inglese</string>
+    <string name="l3">Italiano</string>
+    <string name="l4">Tedesco</string>
+    <string name="l5">Francese</string>
+    <string name="l6">Danese</string>
+    <string name="l7">Portoghese</string>
 </resources>

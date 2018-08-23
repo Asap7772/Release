@@ -55,10 +55,19 @@
     <string name="m1">Tranche de numérisation</string>
     <string name="m2">Info</string>
     <string name="m3">Sélection de la langue</string>
+    <string name="filename">file:///android_res/raw/infopage_fr.html</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
         <item>VERTICAL</item>
         <item>HORIZONTAL</item>
     </string-array>
+    <string name="Language">Langue</string>
+    <string name="l5">Français</string>
+    <string name="l4">Allemand</string>
+    <string name="l3">Italien</string>
+    <string name="l1">Anglais</string>
+    <string name="l2">Espanol</string>
+    <string name="l7">Portugais</string>
+    <string name="l6">Danois</string>
 </resources>
