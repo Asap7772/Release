@@ -55,6 +55,7 @@
     <string name="m1">Scan Slice</string>
     <string name="m2">Info</string>
     <string name="m3">Language Select</string>
+    <string name="m4">Orientation</string>
     <string name="Language">Language</string>
     <string name="l1">English</string>
     <string name="l2">Spanish</string>
@@ -64,7 +65,6 @@
     <string name="l6">Danish</string>
     <string name="l7">Portuguese</string>
     <string name="filename">file:///android_res/raw/infopage.html</string>
-    <string name="m4">Scan Orientation</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
