@@ -6,6 +6,7 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -22,6 +23,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
@@ -46,6 +48,8 @@ import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -236,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     private int previewZoomLevel = 0;
     private boolean keyboardVisible;
+    private Orientation orientation;
 
     // =============================================================================================
     // Methods
@@ -260,6 +265,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //ensures that there is not title present on screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        orientation = Orientation.PORTRAIT;
         setContentView(R.layout.activity_main);
 
         //initialized views from the xml file activity_main.xml
@@ -376,15 +383,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             scheme = ClassificationScheme.valueOf(mPreferences.getString("region", ClassificationScheme.NONE.name()));
             String val = mPreferences.getString("language","");
             locale = generateLocale(val);
-            changeLanguageLocale(locale);
-            mTTS.setLanguage(locale);
+            if(locale != null && mTTS != null) {
+                changeLanguageLocale(locale);
+                mTTS.setLanguage(locale);
+            }
         } else {
             mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
         }
+
     }
 
     private void updateZoom() {
-        cameraSource.zoom(progress / 100.0);
+        if(cameraSource.camera != null) {
+            cameraSource.zoom(progress / 100.0);
+        }
     }
 
     /**
@@ -461,9 +473,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
                 });
                 //rotates image 90 degrees
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+                if(orientation == Orientation.PORTRAIT) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+                }
 
                 String xyz = bmp.getWidth() + "," + bmp.getHeight();
                 Log.e("Bitmap Size", xyz);
@@ -504,21 +518,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             bmpaltr = bmp;
                             saySomething(found + getString(R.string.w10));
                         } else {
-                            //user feedback
-                            if (camera) {
-                                c = new Rect(translateX(c.left), translateY(c.top), translateX(c.right), translateY(c.bottom));
-                            }
                             if(bmpaltr != null) {
                                 bmpaltr = null;
                             }
                             System.gc();
                             bmpaltr = highlightWordFound(bmp, c);
-                            if (camera) {
-                                saySomething(found + getString(R.string.w11));
-                            } else {
-                                saySomething(found + getString(R.string.w12));
-                                prevFrame = true;
-                            }
+                            saySomething(found + getString(R.string.w12));
+                            prevFrame = true;
                         }
                     } else {
                         //user feedback
@@ -545,7 +551,22 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         });
                     }
 
-                    if (arr.size() != 1) {
+                    if(arr.size() == 0){
+                        Rect c = processor.getBoundingRect();
+                        if (c == null) {
+                            //so that app does not crash
+                            bmpaltr = bmp;
+                            saySomething(found + getString(R.string.w10));
+                        } else {
+                            if(bmpaltr != null) {
+                                bmpaltr = null;
+                            }
+                            System.gc();
+                            bmpaltr = highlightWordFound(bmp, c);
+                            saySomething(found + getString(R.string.w12));
+                            prevFrame = true;
+                        }
+                    }else if (arr.size() != 1) {
                         saySomething(found + getString(R.string.w13) + arr.size() + getString(R.string.w14));
                     } else {
                         saySomething(found + getString(R.string.w15));
@@ -583,6 +604,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         @Override
                         public void run() {
                             zoom.setVisibility(View.GONE);
+                            restart.setVisibility(View.VISIBLE);
                         }
                     });
                 }
@@ -721,6 +743,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     previous.setVisibility(View.GONE);
                 }
                 findViewById(R.id.capture).setVisibility(View.GONE);
+                restart.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -1845,6 +1868,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     Toast.makeText(this, "Finding in the Center Slice", Toast.LENGTH_LONG).show();
                 }
                 return true;
+            case R.id.orientationScan:
+                setOrientationDialog();
+                return true;
             case R.id.language:
                 setLanguageDialog();
                 return true;
@@ -1854,6 +1880,29 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             default:
                 return false;
         }
+    }
+
+    private void setOrientationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Please Select Screen Orientation");
+        builder.setItems(new CharSequence[]
+                        {"Portrait", "Landscape"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position of the selected item
+                        switch (which) {
+                            case 0:
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                                orientation = Orientation.PORTRAIT;
+                                break;
+                            case 1:
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                                orientation = Orientation.LANDSCAPE;
+                                break;
+                        }
+                    }
+                });
+        builder.create().show();
     }
 
 
@@ -1943,7 +1992,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 });
 
                 //rotates image 90 degrees
-                if (bmp.getHeight() < bmp.getWidth()) {
+                if (bmp.getHeight() < bmp.getWidth() && orientation == Orientation.PORTRAIT) {
                     Matrix matrix = new Matrix();
                     matrix.postRotate(90);
                     bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
@@ -2077,11 +2126,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                 zoom.setVisibility(View.GONE);
                                 next.setVisibility(View.GONE);
                                 previous.setVisibility(View.GONE);
+                                restart.setVisibility(View.VISIBLE);
                             }
                         }
                         restart.setVisibility(View.VISIBLE);
                     }
                 });
+
             }
         };
         capture.start();
@@ -2155,5 +2206,135 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Configuration config = new Configuration();
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Log.e("Orientation", "" + getResources().getConfiguration().orientation);
+
+        setContentView(R.layout.activity_main);
+        initViews();
+    }
+
+    private void initViews() {
+        search = (EditText) findViewById(R.id.search);
+        oldWidth = search.getWidth();
+
+        search.setOnEditorActionListener(listener);
+        preview = (CameraSourcePreview) findViewById(R.id.preview);
+        graphicOverlay = (GraphicOverlay) findViewById(R.id.overlay);
+        ziv = (RotatableZoomableImageView) findViewById(R.id.ivMainImageMainActivity);
+        zoom = (ImageButton) findViewById(R.id.zoomButton);
+        next = (ImageView) findViewById(R.id.next);
+        previous = (ImageView) findViewById(R.id.previous);
+        settings = (ImageView) findViewById(R.id.settings);
+        info = (ImageView) findViewById(R.id.info);
+        zoomBar = (SeekBar) findViewById(R.id.seekBar);
+        download = (ImageView) findViewById(R.id.download);
+        scan = (ImageView) findViewById(R.id.scan);
+        restart = (ImageButton) findViewById(R.id.restart);
+        flashlight = (ImageButton) findViewById(R.id.flashlight);
+
+        setImage(zoom, R.raw.zoomin);
+
+        scan.setOnTouchListener(new View.OnTouchListener() {
+            /**
+             * When touch event occurs, handles lift and a simple touch & hold
+             * @param v
+             * @param event
+             * @return
+             */
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    //sets boolean touch to true
+                    if(getText().equals(Holder.searchWord)){
+                        saySomething("Please Enter Query");
+                    }else {
+                        cameraSource.touch = true;
+                    }
+                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    //sets boolean lift to true if the touch variable was true
+                    if (cameraSource.touch) {
+                        cameraSource.lift = true;
+                    } else cameraSource.lift = false;
+                    cameraSource.touch = false;
+                }
+                return true;
+            }
+        });
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        KeyboardUtils.addKeyboardToggleListener(this, new KeyboardUtils.SoftKeyboardToggleListener() {
+            @Override
+            public void onToggleSoftKeyboard(boolean isVisible) {
+                Log.d("keyboard", "keyboard visible: " + isVisible);
+                keyboardVisible = isVisible;
+            }
+        });
+
+
+        //initialized camera source
+        if (allPermissionsGranted()) {
+            initCameraSource();
+            startCameraSource();
+        } else {
+            getRuntimePermissions();
+        }
+
+        // Check to see if we have Text To Speech (TTS) voice data
+        Intent ttsIntent = new Intent();
+        ttsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(ttsIntent, ACT_CHECK_TTS_DATA);
+
+        //reset variable values
+        wordFound = false;
+        if (processor != null) {
+            processor.setFoundOnce(false);
+        }
+
+        zoomBar.setOnSeekBarChangeListener(a);
+
+        //set initial visibility of views
+        ziv.setVisibility(View.GONE);
+        zoom.setVisibility(View.GONE);
+        next.setVisibility(View.GONE);
+        previous.setVisibility(View.GONE);
+        download.setVisibility(View.GONE);
+        preview.setVisibility(View.VISIBLE);
+        settings.setVisibility(View.VISIBLE);
+        findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
+        zoomBar.setVisibility(View.VISIBLE);
+        scan.setVisibility(View.VISIBLE);
+        findViewById(R.id.cameraPreview).setVisibility(View.VISIBLE);
+        findViewById(R.id.blackLinear).setVisibility(View.GONE);
+        restart.setVisibility(View.GONE);
+        search.setText(Holder.searchWord);
+        cameraCapture = false;
+
+        setImage(flashlight, R.raw.flashlight_invert);
+        ziv.clearAnimation();
+        //starts detection thread
+        startFoundOnceThread();
+        startZoomedThread();
+    }
+
+    public void lockScreenOrientation() {
+        switch (((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
+            case Surface.ROTATION_90:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            case Surface.ROTATION_180:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                break;
+            case Surface.ROTATION_270:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            default :
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 }

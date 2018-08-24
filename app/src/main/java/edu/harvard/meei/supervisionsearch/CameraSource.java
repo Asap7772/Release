@@ -753,8 +753,8 @@ public class CameraSource {
 
     public double zoom(double percent){
         Camera.Parameters param = camera.getParameters();
-        double zoom = percent*param.getMaxZoom();
-        param.setZoom((int)zoom);
+        double zoom = percent * param.getMaxZoom();
+        param.setZoom((int) zoom);
         camera.setParameters(param);
         return zoom;
     }
@@ -767,4 +767,5 @@ public class CameraSource {
     public int getRotation(){
         return rotation;
     }
+
 }

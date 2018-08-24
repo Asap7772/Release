@@ -64,6 +64,7 @@
     <string name="l6">Dinamarquês</string>
     <string name="l7">Português</string>
     <string name="filename">file:///android_res/raw/infopage_pt.html</string>
+    <string name="m4">Scan Orientation</string>
     <string-array name="spinnerArray">
         <item>NONE</item>
         <item>CENTER</item>
