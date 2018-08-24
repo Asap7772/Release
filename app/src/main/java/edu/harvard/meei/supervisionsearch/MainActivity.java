@@ -1646,6 +1646,29 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         alert.show();
     }
 
+    private void setOrientationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.m4));
+        builder.setItems(new CharSequence[]
+                        {"Portrait", "Landscape"},
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position of the selected item
+                        switch (which) {
+                            case 0:
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                                orientation = Orientation.PORTRAIT;
+                                break;
+                            case 1:
+                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                                orientation = Orientation.LANDSCAPE;
+                                break;
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
     /**
      * Hides soft keyboard
      *
@@ -1880,29 +1903,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             default:
                 return false;
         }
-    }
-
-    private void setOrientationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Please Select Screen Orientation");
-        builder.setItems(new CharSequence[]
-                        {"Portrait", "Landscape"},
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position of the selected item
-                        switch (which) {
-                            case 0:
-                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                                orientation = Orientation.PORTRAIT;
-                                break;
-                            case 1:
-                                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                                orientation = Orientation.LANDSCAPE;
-                                break;
-                        }
-                    }
-                });
-        builder.create().show();
     }
 
 
@@ -2214,8 +2214,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         Log.e("Orientation", "" + getResources().getConfiguration().orientation);
 
+        int zoomVal = zoomBar.getProgress();
+        String string = getText();
         setContentView(R.layout.activity_main);
         initViews();
+        search.setText(string);
+        updateZoomBar(zoomVal);
     }
 
     private void initViews() {
