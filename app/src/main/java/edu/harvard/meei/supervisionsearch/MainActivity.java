@@ -2211,7 +2211,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         Log.e("Orientation", "" + getResources().getConfiguration().orientation);
 
         int zoomVal = zoomBar.getProgress();
@@ -2220,6 +2219,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         initViews();
         search.setText(string);
         updateZoomBar(zoomVal);
+
+        // cameraSource.camera.setDisplayOrientation(getResources().getConfiguration().orientation);
     }
 
     private void initViews() {

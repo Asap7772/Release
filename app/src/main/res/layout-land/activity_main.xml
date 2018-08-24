@@ -40,35 +40,37 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="left|top"
+        android:gravity="right|bottom"
         android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginRight="-5dp">
+            <ImageButton
+                android:layout_height="@dimen/size"
+                android:layout_width="@dimen/size"
+                android:onClick="toggleFlashlight"
+                android:layout_marginRight="-10dp"
+                android:src="@raw/flashlight"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/flashlight"/>
+            <ImageButton
+                android:layout_height="@dimen/size"
+                android:layout_width="@dimen/size"
+                android:onClick="settings"
+                android:src="@raw/settings"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/settings"/>
+        </LinearLayout>
+
         <View
-            android:layout_height="25dp"
+            android:layout_height="85dp"
             android:layout_width="@dimen/size"/>
-
-        <ImageButton
-            android:layout_height="@dimen/size"
-            android:layout_width="@dimen/size"
-            android:layout_marginTop="25dp"
-            android:layout_margin="10dp"
-            android:onClick="settings"
-            android:src="@raw/settings"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:id="@+id/settings"/>
-
-        <ImageButton
-            android:layout_height="@dimen/size"
-            android:layout_width="@dimen/size"
-            android:layout_marginTop="25dp"
-            android:layout_margin="10dp"
-            android:onClick="toggleFlashlight"
-            android:src="@raw/flashlight"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:id="@+id/flashlight"/>
     </LinearLayout>
 
     <LinearLayout
