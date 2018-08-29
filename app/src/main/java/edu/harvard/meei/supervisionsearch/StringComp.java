@@ -1,6 +1,7 @@
 package edu.harvard.meei.supervisionsearch;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class StringComp {
 
@@ -23,6 +24,35 @@ public class StringComp {
         if(x.contains("-")){
             if(!y.contains("-")){
                 String[] arr = x.split("-");
+                if(!allDigits(arr)) {
+                    for (String str : arr) {
+                        if (stringSimilar(str, y)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        if(x.contains("/")){
+            if(!y.contains("/")){
+                String[] arr = x.split("/");
+                if(!allDigits(arr)) {
+                    for (String str : arr) {
+                        if (stringSimilar(str, y)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        String separator = "\\";
+        if(x.contains(separator)){
+            if(!y.contains(separator)){
+                String[] arr = x.split("\\\\");
                 if(!allDigits(arr)) {
                     for (String str : arr) {
                         if (stringSimilar(str, y)) {

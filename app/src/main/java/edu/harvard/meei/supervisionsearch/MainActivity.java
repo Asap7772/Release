@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     if (search.getText().toString().equals(Holder.searchWord)) {
                         saySomething(getString(R.string.w1));
                     }else {
-                        saySomething(getString(R.string.w2) + search.getText().toString());
+                        saySomething(getString(R.string.w2) + " " + search.getText().toString());
                     }
                     String query = v.getText().toString();
                     if (success && secondTime) {
@@ -213,20 +213,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                         if (arr.size() != 1) {
                             if(arr.size() == 0){
-                                saySomething(query + getString(R.string.w3));
+                                saySomething(query + " " + getString(R.string.w3));
                             }else {
-                                saySomething(query + getString(R.string.w4) + arr.size() + getString(R.string.w5));
+                                saySomething(query + " " + getString(R.string.w4) + " " + arr.size() + " " + getString(R.string.w5));
                             }
                         } else {
-                            saySomething(query + getString(R.string.w6));
+                            saySomething(query + " " + getString(R.string.w6));
                         }
                     } else if (cameraCapture) {
                         update(query);
 
                         if (arr.size() != 1) {
-                            saySomething(query + getString(R.string.w7) + arr.size() + getString(R.string.w8));
+                            saySomething(query + " " + getString(R.string.w7) + " " + arr.size() + " " + getString(R.string.w8));
                         } else {
-                            saySomething(query + getString(R.string.w9));
+                            saySomething(query + " " + getString(R.string.w9));
                         }
                     }
                     hideKeyboard(MainActivity.this);
@@ -1482,7 +1482,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             if (search.getText().toString().equals(Holder.searchWord)) {
                 saySomething(getString(R.string.w19));
             }else {
-                saySomething(getString(R.string.w20) + search.getText().toString());
+                saySomething(getString(R.string.w20)+ " " + search.getText().toString());
             }
             if (success && secondTime) {
                 // updates search query if on zoomable image view screen
@@ -1490,12 +1490,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                 if (arr.size() != 1) {
                     if (arr.size() == 0) {
-                        saySomething(spokenText + getString(R.string.w21));
+                        saySomething(spokenText + " " + getString(R.string.w21));
                     } else {
-                        saySomething(spokenText + getString(R.string.w22) + arr.size() + getString(R.string.w23));
+                        saySomething(spokenText + " " + getString(R.string.w22) + " " + arr.size() + " " + getString(R.string.w23));
                     }
                 } else {
-                    saySomething(spokenText + getString(R.string.w24));
+                    saySomething(spokenText + " " + getString(R.string.w24));
                 }
             } else if (cameraCapture) {
 
@@ -1503,12 +1503,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 //TODO check if word is found
                 if (arr != null && arr.size() != 1) {
                     if (arr.size() == 0) {
-                        saySomething(spokenText + getString(R.string.w25));
+                        saySomething(spokenText + " " + getString(R.string.w25));
                     } else {
-                        saySomething(spokenText + getString(R.string.w26) + arr.size() + getString(R.string.w27));
+                        saySomething(spokenText + " " + getString(R.string.w26) + arr.size() + " " + getString(R.string.w27));
                     }
                 } else {
-                    saySomething(spokenText + getString(R.string.w28));
+                    saySomething(spokenText + " " + getString(R.string.w28));
                 }
             }
 
@@ -1616,7 +1616,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         }
                         mTTS.setLanguage(locale);
                         changeLanguageLocale(locale);
-                        saySomething(getString(R.string.w33) + locale.getDisplayLanguage());
+                        saySomething(getString(R.string.w33) + " " + locale.getDisplayLanguage());
                     }
                 });
         builder.create().show();
@@ -2017,16 +2017,16 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             public void run() {
                                 update(found[0]);
                                 if (arr == null) {
-                                    saySomething(found[0] + getString(R.string.w37));
+                                    saySomething(found[0] + " " + getString(R.string.w37));
                                 } else {
                                     if (arr.size() != 1) {
                                         if (arr.size() == 0) {
-                                            saySomething(found[0] + getString(R.string.w38));
+                                            saySomething(found[0] + " " + getString(R.string.w38));
                                         } else {
-                                            saySomething(found[0] + getString(R.string.w39) + arr.size() + getString(R.string.w40));
+                                            saySomething(found[0] + " " + getString(R.string.w39) + " " + arr.size() + " " + getString(R.string.w40));
                                         }
                                     } else {
-                                        saySomething(found[0] + getString(R.string.w41));
+                                        saySomething(found[0] + " " + getString(R.string.w41));
                                     }
                                 }
                                 ui[0] = true;
@@ -2065,7 +2065,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     if (found[0].equals(Holder.searchWord)) {
                         saySomething(getString(R.string.w42));
                     } else {
-                        saySomething(found[0] + getString(R.string.w43));
+                        saySomething(found[0] + " " + getString(R.string.w43));
                     }
                     captureFailed = true;
                 } else {
@@ -2074,14 +2074,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             saySomething(getString(R.string.w44));
                         } else {
                             if (arr.size() == 0) {
-                                saySomething(found[0] + getString(R.string.w45));
+                                saySomething(found[0] + " " + getString(R.string.w45));
                                 captureFailed = true;
                             } else {
-                                saySomething(found[0] + getString(R.string.w46) + arr.size() + getString(R.string.w47));
+                                saySomething(found[0] + " " + getString(R.string.w46) + arr.size() + " " + getString(R.string.w47));
                             }
                         }
                     } else {
-                        saySomething(found[0] + getString(R.string.w48));
+                        saySomething(found[0] + " " + getString(R.string.w48));
                     }
                 }
 
