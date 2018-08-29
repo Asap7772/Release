@@ -1996,6 +1996,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     Matrix matrix = new Matrix();
                     matrix.postRotate(90);
                     bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+                }else if (bmp.getHeight() > bmp.getWidth() && orientation == Orientation.LANDSCAPE) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
                 }
 
                 boolean captureFailed = false;
@@ -2219,8 +2223,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         initViews();
         search.setText(string);
         updateZoomBar(zoomVal);
-
-        // cameraSource.camera.setDisplayOrientation(getResources().getConfiguration().orientation);
     }
 
     private void initViews() {

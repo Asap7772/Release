@@ -29,7 +29,7 @@ import java.io.IOException;
 
 /** Preview the camera image in the screen. */
 public class CameraSourcePreview extends ViewGroup {
-    private static final String TAG = "MIDemoApp:Preview";
+    private static final String TAG = "CameraSourcePreview";
     private Context context;
     public SurfaceView surfaceView;
     private boolean startRequested;
@@ -182,10 +182,10 @@ public class CameraSourcePreview extends ViewGroup {
         int childHeight = (int) (((float) layoutWidth / (float) width) * height);
 
         // If height is too tall using fit width, does fit height instead.
-        if (childHeight > layoutHeight) {
+//        if (childHeight > layoutHeight) {
             childHeight = layoutHeight;
             childWidth = (int) (((float) layoutHeight / (float) height) * width);
-        }
+//        }
 
         for (int i = 0; i < getChildCount(); ++i) {
             getChildAt(i).layout(0, 0, childWidth, childHeight);

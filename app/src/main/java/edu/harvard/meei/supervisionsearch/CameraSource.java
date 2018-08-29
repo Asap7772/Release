@@ -71,8 +71,8 @@ public class CameraSource {
     // These values may be requested by the caller.  Due to hardware limitations, we may need to
     // select close, but not exactly the same values for these.
     private final float requestedFps = 20.0f;
-    private final int requestedPreviewWidth = 1280;
-    private final int requestedPreviewHeight = 960;
+    private int requestedPreviewWidth = 1280;
+    private int requestedPreviewHeight = 960;
     private final boolean requestedAutoFocus = true;
 
     private SurfaceTexture dummySurfaceTexture;
@@ -345,8 +345,7 @@ public class CameraSource {
         int minDiff = Integer.MAX_VALUE;
         for (SizePair sizePair : validPreviewSizes) {
             Size size = sizePair.previewSize();
-            int diff =
-                    Math.abs(size.getWidth() - desiredWidth) + Math.abs(size.getHeight() - desiredHeight);
+            int diff = Math.abs(size.getWidth() - desiredWidth) + Math.abs(size.getHeight() - desiredHeight);
             if (diff < minDiff) {
                 selectedPair = sizePair;
                 minDiff = diff;
