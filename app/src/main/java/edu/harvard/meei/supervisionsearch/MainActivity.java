@@ -327,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             }
         });
 
+        search.setCursorVisible(true);
+
 
         //initialized camera source
         if (allPermissionsGranted()) {

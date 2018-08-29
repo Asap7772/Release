@@ -1,5 +1,6 @@
 package edu.harvard.meei.supervisionsearch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -38,21 +39,6 @@ public class StringComp {
         if(x.contains("/")){
             if(!y.contains("/")){
                 String[] arr = x.split("/");
-                if(!allDigits(arr)) {
-                    for (String str : arr) {
-                        if (stringSimilar(str, y)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-
-        String separator = "\\";
-        if(x.contains(separator)){
-            if(!y.contains(separator)){
-                String[] arr = x.split("\\\\");
                 if(!allDigits(arr)) {
                     for (String str : arr) {
                         if (stringSimilar(str, y)) {
@@ -139,6 +125,25 @@ public class StringComp {
             str = str + Arrays.toString(x) + "\n";
         }
         return str;
+    }
+
+    public static String[] splitBackspace(String str) {
+        String backslash = ((char)92) + "";
+        if (str.contains(backslash)) {
+            ArrayList<String> parts = new ArrayList<>();
+            int start = 0;
+            int end = 0;
+            for ( int c : str.toCharArray() ) {
+                if (c == 92) {
+                    parts.add(str.substring(start, end));
+                    start = end + 1;
+                }
+                end++;
+            }
+            parts.add(str.substring(start));
+            return parts.toArray( new String[parts.size()] );
+        }
+        return str.split("\\\\");
     }
 
 }

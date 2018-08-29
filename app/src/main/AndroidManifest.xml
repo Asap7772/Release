@@ -33,7 +33,8 @@
             android:name=".MainActivity"
             android:theme="@style/AppTheme"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
