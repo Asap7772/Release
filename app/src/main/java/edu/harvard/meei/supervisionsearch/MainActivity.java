@@ -2244,9 +2244,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Log.e("Orientation", "" + getResources().getConfiguration().orientation);
 
         int zoomVal = zoomBar.getProgress();
+        String searchValue = getText();
         setContentView(R.layout.activity_main);
         initViews();
         updateZoomBar(zoomVal);
+        search.setText(searchValue);
     }
 
     private void initViews() {
