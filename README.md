@@ -34,7 +34,7 @@ Signed APK and output json found in Release/app/release
     4. Image Labeling
     5. Custom TensorFlow Model 
 
-#Setup for Amazon Rekognition (Alternate API Possibility)
+# Setup for Amazon Rekognition (Alternate API Possibility)
 1. Access the AWS Console and create a project make sure you save the access key id and secret key for your credentials
     1. Current Keys:
         1. `private static final String ACCESS_KEY_ID = "AKIAJBXGT2WC6GRKIYDA";`
