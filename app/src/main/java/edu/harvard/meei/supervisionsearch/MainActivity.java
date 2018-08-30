@@ -2005,16 +2005,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }
                 }
 
-                final String[] found = new String[1];
-                found[0] = "";
+                final String[] found = new String[]{searchVal};
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         MainActivity.this.playSound();
-                        found[0] = search.getText().toString();
-                        if(!found[0].equals(searchVal)){
-                            found[0] = searchVal;
-                        }
                     }
                 });
 
