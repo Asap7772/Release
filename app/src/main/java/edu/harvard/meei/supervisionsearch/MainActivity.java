@@ -42,6 +42,8 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.os.ConfigurationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -81,6 +83,8 @@ import java.util.List;
 import java.util.Locale;
 
 import de.cketti.mailto.EmailIntentBuilder;
+
+import static edu.harvard.meei.supervisionsearch.CameraSource.CAMERA_FACING_BACK;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener, PopupMenu.OnMenuItemClickListener {
     // =============================================================================================
@@ -207,7 +211,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     }else {
                         saySomething(getString(R.string.w2) + " " + search.getText().toString());
                     }
+
                     String query = v.getText().toString();
+                    searchVal = query;
                     if (success && secondTime) {
                         update(query);
 
@@ -241,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private int previewZoomLevel = 0;
     private boolean keyboardVisible;
     private Orientation orientation;
+    private volatile String searchVal = "";
+    public String sizes;
 
     // =============================================================================================
     // Methods
@@ -356,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
-        download.setVisibility(View.GONE);
+        findViewById(R.id.debug).setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
         findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
@@ -586,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         zoom.setVisibility(View.VISIBLE);
                         restart.setVisibility(View.VISIBLE);
                         if (debug) {
-                            download.setVisibility(View.VISIBLE);
+                            findViewById(R.id.debug).setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
@@ -1169,7 +1177,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         ziv.setVisibility(View.GONE);
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
-        download.setVisibility(View.GONE);
+        findViewById(R.id.debug).setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
@@ -1281,16 +1289,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private void adjustZoomLevel(int width) {
 
         // If the next iteration in zoom level exceeds the with of the holder then return
-        if (camera) {
-            if ((ziv.getMaxScale() * (2 * width)) >= ziv.getWidth()) {
-                ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
-                adjustZoomLevel(width);
-            }
-        } else {
-            if ((ziv.getMaxScale() * (width)) >= ziv.getWidth()) {
-                ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
-                adjustZoomLevel(width);
-            }
+        if ((ziv.getMaxScale() * (2 * width)) >= ziv.getWidth()) {
+            ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
+            adjustZoomLevel(width);
         }
 
         if (ziv.getMaxScale() == 0)
@@ -1480,6 +1481,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             String spokenText = results.get(0);
             //set edit text's value to the spoken text
             search.setText(spokenText);
+            searchVal = spokenText;
             //user output
             if (search.getText().toString().equals(Holder.searchWord)) {
                 saySomething(getString(R.string.w19));
@@ -1671,6 +1673,30 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         builder.create().show();
     }
 
+    public void cameraSizeInfoDialog(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Camera Sizes");
+        if(sizes != null) {
+            builder.setMessage(sizes);
+        }else{
+            sizes = "";
+            ArrayList cameras = new ArrayList<Integer>();
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
+                Camera.getCameraInfo(i, cameraInfo);
+                if (cameraInfo.facing == CAMERA_FACING_BACK) {
+                    Camera c = Camera.open(i);
+                    Camera.Parameters parameters = c.getParameters();
+                    Camera.Size size = parameters.getSupportedPictureSizes().get(0);
+                    int cameraNum = Camera.getNumberOfCameras();
+                    sizes = sizes + size.width + " x " + size.height + "\n";
+                }
+            }
+            builder.setMessage(sizes);
+        }
+        builder.show();
+    }
+
     /**
      * Hides soft keyboard
      *
@@ -1729,6 +1755,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
         return false;
     }
+
     private Locale generateLocale(String str){
         switch (str){
             case "english":
@@ -1934,14 +1961,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
-            Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_LONG).show();
-
-            //to open file and view it
-            Intent i = new Intent();
-            i.setAction(android.content.Intent.ACTION_VIEW);
-            i.setDataAndType(FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + ".my.package.name.provider", docFile), "text/plain");
-            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(i);
+            Toast.makeText(getApplicationContext(), "Saved Image to Camera Roll", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1990,6 +2010,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                     public void run() {
                         MainActivity.this.playSound();
                         found[0] = search.getText().toString();
+                        if(!found[0].equals(searchVal)){
+                            found[0] = searchVal;
+                        }
                     }
                 });
 
@@ -2032,6 +2055,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                                     }
                                 }
                                 ui[0] = true;
+                                showZoom();
                             }
                         });
                         while (!ui[0]) {
@@ -2098,7 +2122,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
                         if (debug) {
-                            download.setVisibility(View.VISIBLE);
+                            findViewById(R.id.debug).setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
@@ -2220,10 +2244,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Log.e("Orientation", "" + getResources().getConfiguration().orientation);
 
         int zoomVal = zoomBar.getProgress();
-        String string = getText();
         setContentView(R.layout.activity_main);
         initViews();
-        search.setText(string);
         updateZoomBar(zoomVal);
     }
 
@@ -2312,7 +2334,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
-        download.setVisibility(View.GONE);
+        findViewById(R.id.debug).setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
         findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
@@ -2346,4 +2368,5 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
     }
+
 }
