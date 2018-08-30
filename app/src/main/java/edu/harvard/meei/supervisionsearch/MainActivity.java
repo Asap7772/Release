@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private static final int MEDIA_TYPE_IMAGE = 14;
     private static final int MEDIA_TYPE_VIDEO = 15;
     private static final float VIDEO_STROKE = 5;
-    private static final float PICTURE_STROKE = 40;
+    private static final float PICTURE_STROKE = 20;
     private String sharedPrefFile = "edu.harvard.meei.supervisionsearch.release";
     private float mDist = 0;
 
@@ -188,6 +188,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     // =============================================================================================
 
     private Thread capture, t, zoomThread;
+    private Handler mHandler;
+    private static final int BLINK_INTERVAL = 1000;
 
     private boolean cameraCapture = false;
     private TextView.OnEditorActionListener listener = new TextView.OnEditorActionListener() {
@@ -249,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private Orientation orientation;
     private volatile String searchVal = "";
     public String sizes;
+    private volatile boolean blinking = false;
 
     // =============================================================================================
     // Methods
@@ -295,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         scan = (ImageView) findViewById(R.id.scan);
         restart = (ImageButton) findViewById(R.id.restart);
         flashlight = (ImageButton) findViewById(R.id.flashlight);
+        mHandler = new Handler();
 
         setImage(zoom, R.raw.zoomin);
 
@@ -605,6 +609,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         findViewById(R.id.cameraPreview).setVisibility(View.GONE);
                         findViewById(R.id.blackLinear).setVisibility(View.VISIBLE);
                         cameraSource.torch(false);
+                        startBlinking();
                     }
                 });
                 //resets values of button visibility
@@ -619,7 +624,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         }
                     });
                 }
-
             }
         };
 
@@ -943,6 +947,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             mTTS.shutdown();
         }
 
+        mHandler.removeCallbacksAndMessages(null);
+
         finish();
     }
 
@@ -1137,6 +1143,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     private void restart() {
+        stopBlinking();
         if (getText().equals(Holder.searchWord) && !secondTime) {
             return;
         }
@@ -1256,7 +1263,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Paint mPaint = new Paint();
         mPaint.setColor(Color.GREEN);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(5);
+
+        if (camera) {
+            mPaint.setStrokeWidth(PICTURE_STROKE);
+        } else {
+            mPaint.setStrokeWidth(VIDEO_STROKE);
+        }
 
         //copy bitmap and access the canvas of the bitmap
         mutableBitmap = mutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -1291,9 +1303,16 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private void adjustZoomLevel(int width) {
 
         // If the next iteration in zoom level exceeds the with of the holder then return
-        if ((ziv.getMaxScale() * (2 * width)) >= ziv.getWidth()) {
-            ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
-            adjustZoomLevel(width);
+        if(camera) {
+            if ((ziv.getMaxScale() * (3 * width)) >= ziv.getWidth()) {
+                ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
+                adjustZoomLevel(width);
+            }
+        }else{
+            if ((ziv.getMaxScale() * width) >= ziv.getWidth()) {
+                ziv.setMaxScale(ziv.getMaxScale() - 0.1f);
+                adjustZoomLevel(width);
+            }
         }
 
         if (ziv.getMaxScale() == 0)
@@ -2158,6 +2177,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                             }
                         }
                         restart.setVisibility(View.VISIBLE);
+                        startBlinking();
                     }
                 });
 
@@ -2388,4 +2408,38 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
+    private boolean isHighlighted = false;
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+
+                if (isHighlighted) {
+                    ziv.setPhotoBitmap(bmp);
+                    isHighlighted = false;
+                } else {
+                    ziv.setPhotoBitmap(bmpaltr);
+                    isHighlighted = true;
+                }
+            } finally {
+                // 100% guarantee that this always happens, even if
+                // your update method throws an exception
+                mHandler.postDelayed(mStatusChecker, BLINK_INTERVAL);
+            }
+        }
+    };
+
+    private void startBlinking() {
+        if(!blinking) {
+            mStatusChecker.run();
+            blinking = true;
+        }
+    }
+
+    private void stopBlinking() {
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mStatusChecker);
+            blinking = false;
+        }
+    }
 }
