@@ -1,16 +1,14 @@
 # Release Application
 Release version of Supervision Search + Scan<br/>
-Signed APK and output json found in app/release
+Signed APK and output json found in Release/app/release
 
-###Keystore Details
-| **value**            | password               |
-|----------------------|------------------------|
-| **store password**   | Schepens2              |
-| **key alias**        | svsearchkey            |
-| **key password**     | Schepens2              |
-| **Link to Keystore** | https://bit.ly/2PQeW2I |
+#Keystore Details
+**Store Password** — Schepens2 <br/>
+**Key Alias** — svsearchkey <br/>
+**Key Password** — Schepens2 <br/>
+**Keystore Location** — Release/supervision_key.jks
 
-###Setup for Google MLKIT (Current API)
+#Setup for Google MLKIT (Current API)
 1. Access the Firebase console and create a new project.
     1. Link to console: https://console.firebase.google.com
     2. Other Firebase dependencies such as analytics can also be accessed here
@@ -36,7 +34,7 @@ Signed APK and output json found in app/release
     4. Image Labeling
     5. Custom TensorFlow Model 
 
-###Setup for Amazon Rekognition (Alternate API Possibility)
+#Setup for Amazon Rekognition (Alternate API Possibility)
 1. Access the AWS Console and create a project make sure you save the access key id and secret key for your credentials
     1. Current Keys:
         1. `private static final String ACCESS_KEY_ID = "AKIAJBXGT2WC6GRKIYDA";`
