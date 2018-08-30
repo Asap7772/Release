@@ -99,7 +99,7 @@
         android:layout_height="match_parent"
         android:gravity="left|top"
         android:orientation="vertical"
-        android:id="@+id/debug">
+        android:id="@+id/infoLayout">
 
         <ImageButton
             android:layout_width="@dimen/size"
@@ -111,6 +111,14 @@
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:background="?android:attr/selectableItemBackground"/>
+
+        <ImageButton
+            android:layout_width="@dimen/size"
+            android:layout_height="@dimen/size"
+            android:layout_margin="10dp"
+            android:src="@drawable/info"
+            android:id="@+id/cameraSizes"
+            android:onClick="cameraSizeInfoDialog"/>
     </LinearLayout>
 
     <LinearLayout

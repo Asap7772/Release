@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
-        findViewById(R.id.debug).setVisibility(View.GONE);
+        findViewById(R.id.download).setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
         findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
@@ -372,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         scan.setVisibility(View.VISIBLE);
         findViewById(R.id.cameraPreview).setVisibility(View.VISIBLE);
         findViewById(R.id.blackLinear).setVisibility(View.GONE);
+        findViewById(R.id.infoLayout).setVisibility(View.GONE);
         restart.setVisibility(View.GONE);
         search.setText(Holder.searchWord);
         cameraCapture = false;
@@ -594,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         zoom.setVisibility(View.VISIBLE);
                         restart.setVisibility(View.VISIBLE);
                         if (debug) {
-                            findViewById(R.id.debug).setVisibility(View.VISIBLE);
+                            findViewById(R.id.download).setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
@@ -1177,7 +1178,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         ziv.setVisibility(View.GONE);
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
-        findViewById(R.id.debug).setVisibility(View.GONE);
+        findViewById(R.id.download).setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
@@ -1188,6 +1189,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         findViewById(R.id.cameraPreview).setVisibility(View.VISIBLE);
         findViewById(R.id.blackLinear).setVisibility(View.GONE);
         restart.setVisibility(View.GONE);
+        findViewById(R.id.infoLayout).setVisibility(View.GONE);
 
         //initialized camera source
         if (allPermissionsGranted()) {
@@ -1675,7 +1677,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     public void cameraSizeInfoDialog(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Camera Sizes");
+        builder.setTitle("Photo Resolution");
         if(sizes != null) {
             builder.setMessage(sizes);
         }else{
@@ -2122,7 +2124,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         ziv.setVisibility(View.VISIBLE);
                         zoom.setVisibility(View.VISIBLE);
                         if (debug) {
-                            findViewById(R.id.debug).setVisibility(View.VISIBLE);
+                            findViewById(R.id.download).setVisibility(View.VISIBLE);
                         }
                         settings.setVisibility(View.GONE);
                         findViewById(R.id.flashlight).setVisibility(View.GONE);
@@ -2133,6 +2135,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         findViewById(R.id.capture).setVisibility(View.GONE);
                         findViewById(R.id.cameraPreview).setVisibility(View.GONE);
                         findViewById(R.id.blackLinear).setVisibility(View.VISIBLE);
+                        findViewById(R.id.infoLayout).setVisibility(View.VISIBLE);
                         cameraSource.torch(false);
 
                         zoom.setVisibility(View.VISIBLE);
@@ -2270,6 +2273,25 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         restart = (ImageButton) findViewById(R.id.restart);
         flashlight = (ImageButton) findViewById(R.id.flashlight);
 
+        //set initial visibility of views
+        ziv.setVisibility(View.GONE);
+        zoom.setVisibility(View.GONE);
+        next.setVisibility(View.GONE);
+        previous.setVisibility(View.GONE);
+        findViewById(R.id.download).setVisibility(View.GONE);
+        preview.setVisibility(View.VISIBLE);
+        settings.setVisibility(View.VISIBLE);
+        findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
+        zoomBar.setVisibility(View.VISIBLE);
+        scan.setVisibility(View.VISIBLE);
+        findViewById(R.id.cameraPreview).setVisibility(View.VISIBLE);
+        findViewById(R.id.blackLinear).setVisibility(View.GONE);
+        findViewById(R.id.infoLayout).setVisibility(View.GONE);
+        restart.setVisibility(View.GONE);
+        search.setText(Holder.searchWord);
+        cameraCapture = false;
+
+
         setImage(zoom, R.raw.zoomin);
 
         scan.setOnTouchListener(new View.OnTouchListener() {
@@ -2336,7 +2358,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         zoom.setVisibility(View.GONE);
         next.setVisibility(View.GONE);
         previous.setVisibility(View.GONE);
-        findViewById(R.id.debug).setVisibility(View.GONE);
+        findViewById(R.id.download).setVisibility(View.GONE);
         preview.setVisibility(View.VISIBLE);
         settings.setVisibility(View.VISIBLE);
         findViewById(R.id.flashlight).setVisibility(View.VISIBLE);
