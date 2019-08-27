@@ -2,12 +2,6 @@
 Release version of Supervision Search + Scan<br/>
 Signed APK and output json found in Release/app/release
 
-# Keystore Details
-**Store Password** — Schepens2 <br/>
-**Key Alias** — svsearchkey <br/>
-**Key Password** — Schepens2 <br/>
-**Keystore Location** — Release/supervision_key.jks
-
 # Setup for Google MLKIT (Current API)
 1. Access the Firebase console and create a new project.
     1. Link to console: https://console.firebase.google.com
